@@ -123,3 +123,20 @@ On n'utilise pas Node.js pour servir le front car c'est utiliser un bazooka pour
 
 - https://nginx.org/en/docs/
 - https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
+
+---
+
+## Render
+
+**Render** est une plateforme de déploiement cloud. Elle permet de déployer une application web sans avoir à gérer le serveur soi-même.
+
+### render.yaml — Blueprint
+
+C'est le fichier clé du projet. Il décrit l'infrastructure en code : ce qu'on déploie, comment on build, les variables d'environnement. Au lieu de tout configurer manuellement dans l'interface Render, on versionne la config dans un fichier YAML dans le repo.
+
+C'est ce qu'on appelle l'**Infrastructure as Code** : l'infrastructure est décrite dans des fichiers texte, versionnés avec le code comme n'importe quel autre fichier.
+
+### Sources
+
+- https://render.com/docs
+- https://render.com/docs/blueprint-spec

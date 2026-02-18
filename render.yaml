@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: realtime-room-api
+    runtime: docker
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: 3001
+
+  - type: web
+    name: realtime-room-web
+    runtime: docker
+    dockerfilePath: ./web/Dockerfile
+    dockerContext: .
