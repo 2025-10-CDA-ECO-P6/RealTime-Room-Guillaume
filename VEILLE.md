@@ -11,14 +11,6 @@ npm copie chaque dépendance dans le `node_modules` de chaque projet. Par exempl
 
 pnpm utilise un **store global unique** : chaque librairie n'est téléchargée qu'une seule fois, puis pnpm crée des "raccourcis" (liens symboliques) depuis le `node_modules` de chaque projet vers ce store. Résultat : installation plus rapide et moins de place utilisée sur le disque.
 
-### Pourquoi dans ce projet ?
-
-pnpm permet de gérer facilement un **monorepo** en déclarant que plusieurs dossiers font partie du même projet via `pnpm-workspace.yaml`. Cela permet de :
-
-- Partager les dépendances communes entre les packages (`/web` et `/api`)
-- Lancer des scripts sur tous les packages depuis la racine
-- Gérer un seul `pnpm-lock.yaml` pour l'ensemble du projet
-
 ### Sources
 
 - https://pnpm.io/motivation
@@ -63,11 +55,36 @@ De base, Node.js permet de créer un serveur HTTP mais c'est verbeux et bas nive
 - Des **middlewares** : fonctions qui s'exécutent entre la réception de la requête et l'envoi de la réponse (ex: Helmet, rate limiter, validation des données). Si tu les branches sur un serveur Express, ils s'exécutent automatiquement à chaque requête
 - Une gestion simplifiée des requêtes/réponses
 
-### Pourquoi dans ce projet ?
-
-On a besoin d'un serveur back pour exposer le endpoint `/health` (obligatoire J1), la doc Swagger sur `/api-docs`, et pour gérer la connexion Socket.IO pour le chat temps réel.
-
 ### Sources
 
 - https://expressjs.com
 - https://expressjs.com/en/guide/using-middleware.html
+
+
+---
+
+## Docker
+
+Docker permet d'emballer une application avec tout ce dont elle a besoin pour tourner (code, dépendances, configuration, version de Node...) dans un **conteneur**. Ce conteneur tourne de manière identique sur toutes les machines.
+
+### Pourquoi ?
+
+Tout le monde a des environnements différents : OS, version de Node, variables d'environnement... Certains bugs n'existent que sur certaines machines. Docker isole l'application dans un environnement reproductible et identique partout.
+
+### Conteneur vs Image
+
+L'image c'est le moule et le conteneur c'est le gâteau (comme une classe et un objet). Tu peux lancer plusieurs conteneurs depuis la même image.
+
+### Dockerfile
+
+C'est le fichier qui décrit comment construire l'image. Il contient :
+
+- La base de départ (ex: `node:20-alpine`)
+- Les fichiers à copier
+- Les commandes à exécuter (installer les dépendances, builder...)
+- La commande de démarrage
+
+### Sources
+
+- https://docs.docker.com/get-started/
+- https://docs.docker.com/reference/dockerfile/
