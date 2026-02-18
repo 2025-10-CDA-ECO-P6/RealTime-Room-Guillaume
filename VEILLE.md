@@ -88,3 +88,38 @@ C'est le fichier qui décrit comment construire l'image. Il contient :
 
 - https://docs.docker.com/get-started/
 - https://docs.docker.com/reference/dockerfile/
+
+---
+
+## Dockerfile multi-stage
+
+Normalement tout se passe dans une seule image : on installe les outils de build et tout reste dans l'image finale, donc on embarque des outils dont on n'a plus besoin en production.
+
+En **multi-stage**, on découpe le build en plusieurs étapes. Chaque stage a un rôle précis et on ne garde dans l'image finale que ce qui est strictement nécessaire pour faire tourner l'app.
+
+Les stages intermédiaires sont utilisés pendant le build puis jetés. L'image finale est donc beaucoup plus légère.
+
+### Sources
+
+- https://docs.docker.com/build/building/multi-stage/
+
+---
+
+## Nginx
+
+**Nginx** (prononcé "engine-x") est un serveur web et un reverse proxy. Il sert des fichiers statiques (HTML, CSS, JS) et redirige les requêtes vers d'autres services.
+
+On l'utilise pour le front car au moment du `pnpm build`, Vite génère un dossier `dist/` avec des fichiers statiques qui n'ont pas besoin de Node.js pour tourner — juste d'un serveur qui les distribue aux navigateurs.
+
+Ici, le front et le back sont dans deux conteneurs séparés. Le navigateur ne connaît qu'une seule URL, et Nginx joue le rôle d'aiguilleur :
+
+- Requête vers `/api/...` → redirigée vers le conteneur Express
+- Requête vers `/socket.io/...` → redirigée vers le conteneur Express
+- Tout le reste → sert les fichiers statiques React
+
+On n'utilise pas Node.js pour servir le front car c'est utiliser un bazooka pour une fourmi. Nginx est conçu pour ça, ultra léger et très performant pour les fichiers statiques.
+
+### Sources
+
+- https://nginx.org/en/docs/
+- https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
