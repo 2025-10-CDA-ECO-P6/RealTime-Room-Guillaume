@@ -23,3 +23,5 @@ services:
     envVars:
       - key: API_URL
         value: https://realtime-room-guillaume.onrender.com
+      - key: VITE_API_URL
+        value: https://realtime-room-guillaume.onrender.com
