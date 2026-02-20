@@ -140,3 +140,42 @@ C'est ce qu'on appelle l'**Infrastructure as Code** : l'infrastructure est décr
 
 - https://render.com/docs
 - https://render.com/docs/blueprint-spec
+
+Socket.Io
+
+Librairie qui fait de la comm en temps réel entre un client et un serveur. =/= Http lui c'est tjrs le client qui initie la requete.
+Http n'est pas adapté pour certain service car devrait intérogré le serveur en permance pour savoir s'il y a du nouveau
+
+Socket.IO repose sur le webSocket -> connexion ouverte et persistante entre client et serveur. Quand un message arrive le serveru le transmet a tout les client concernés.
+
+Concepts clés:
+. event: Socket.IO se base sur les event: on emet avec socket.emit et on ecoute avec socket.on
+. Room: c'est un groupe de connexions, un client peut rejoindre une room et recevoir uniquement des message de cette room
+. broadcast: envoie un message a tous les clients concernés sauf l'emetteur
+
+
+Sources
+
+https://socket.io/docs/v4/
+https://socket.io/docs/v4/rooms/
+
+---
+
+## Socket.IO
+
+Librairie qui fait de la communication en temps réel entre un client et un serveur. Contrairement à HTTP où c'est toujours le client qui initie la requête, Socket.IO permet au serveur d'envoyer des données au client à tout moment.
+
+HTTP n'est pas adapté pour certains services car il faudrait interroger le serveur en permanence pour savoir s'il y a du nouveau, ce qui est inefficace.
+
+Socket.IO repose sur les **WebSockets** : une connexion ouverte et persistante entre client et serveur. Quand un message arrive, le serveur le transmet instantanément à tous les clients concernés.
+
+### Concepts clés
+
+- **Event** : Socket.IO se base sur les événements. On émet avec `socket.emit` et on écoute avec `socket.on`
+- **Room** : groupe de connexions. Un client peut rejoindre une room et recevoir uniquement les messages de cette room
+- **Broadcast** : envoie un message à tous les clients connectés sauf l'émetteur
+
+### Sources
+
+- https://socket.io/docs/v4/
+- https://socket.io/docs/v4/rooms/

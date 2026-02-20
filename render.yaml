@@ -1,15 +1,22 @@
 services:
   - type: web
     name: realtime-room-api
-    runtime: docker
+    env: docker
+    plan: free
+    branch: main
     dockerfilePath: ./api/Dockerfile
     dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
     envVars:
       - key: PORT
         value: 3001
 
   - type: web
     name: realtime-room-web
-    runtime: docker
+    env: docker
+    plan: free
+    branch: main
     dockerfilePath: ./web/Dockerfile
     dockerContext: .
+    autoDeploy: true
