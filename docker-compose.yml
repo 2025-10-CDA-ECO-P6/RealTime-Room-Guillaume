@@ -14,5 +14,7 @@ services:
       dockerfile: web/Dockerfile
     ports:
       - "80:80"
+    environment:
+      - API_URL=http://api:3001
     depends_on:
       - api

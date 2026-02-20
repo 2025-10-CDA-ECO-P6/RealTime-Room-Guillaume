@@ -7,9 +7,9 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile --filter web
 COPY web/ ./web/
 RUN cd web && pnpm build
 
-# Stage 2 - Final : sert les fichiers statiques avec Nginx
+# Stage 2 - Final
 FROM nginx:alpine
 COPY --from=builder /app/web/dist /usr/share/nginx/html
-COPY web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY web/nginx.conf /etc/nginx/templates/default.conf.template
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
