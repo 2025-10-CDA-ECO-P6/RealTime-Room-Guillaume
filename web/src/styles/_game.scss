@@ -1,0 +1,71 @@
+@use 'variables' as *;
+
+.game {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: $spacing-md;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $color-border;
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $color-dark;
+  }
+
+  &__board {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    background-color: $color-bg;
+    color: $color-border;
+    font-size: $font-size-sm;
+  }
+
+  &__controls {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__input {
+    flex: 1;
+    padding: $spacing-sm $spacing-md;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    font-size: $font-size-base;
+    background-color: $color-white;
+    color: $color-dark;
+    outline: none;
+
+    &:focus {
+      border-color: $color-accent;
+    }
+  }
+
+  &__btn {
+    padding: $spacing-sm $spacing-lg;
+    background-color: $color-accent;
+    color: $color-white;
+    border: none;
+    border-radius: $border-radius;
+    font-size: $font-size-base;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: $color-dark;
+    }
+  }
+}
