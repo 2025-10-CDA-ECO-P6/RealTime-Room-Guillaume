@@ -40,10 +40,23 @@ export default function Chat() {
 
   if (!joined) {
     return (
-      <div>
-        <input placeholder="Pseudo" onChange={(e) => setPseudo(e.target.value)} />
-        <input placeholder="Room" onChange={(e) => setRoom(e.target.value)} />
-        <button onClick={joinRoom}>Rejoindre</button>
+      <div className="join-room">
+        <h2 className="join-room__title">Rejoindre une room</h2>
+        <div className="join-room__form">
+          <input
+            className="join-room__input"
+            placeholder="Pseudo"
+            onChange={(e) => setPseudo(e.target.value)}
+          />
+          <input
+            className="join-room__input"
+            placeholder="Room"
+            onChange={(e) => setRoom(e.target.value)}
+          />
+          <button className="join-room__btn" onClick={joinRoom}>
+            Rejoindre
+          </button>
+        </div>
       </div>
     )
   }

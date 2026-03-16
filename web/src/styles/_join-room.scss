@@ -1,0 +1,60 @@
+@use 'variables' as *;
+
+.join-room {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $color-dark;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    width: 100%;
+    max-width: 360px;
+    background-color: $color-beige;
+    padding: $spacing-lg;
+    border-radius: $border-radius-lg;
+    border: 1px solid $color-border;
+  }
+
+  &__input {
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    font-size: $font-size-base;
+    background-color: $color-white;
+    color: $color-dark;
+    outline: none;
+
+    &:focus {
+      border-color: $color-accent;
+    }
+  }
+
+  &__btn {
+    padding: $spacing-sm $spacing-md;
+    background-color: $color-dark;
+    color: $color-white;
+    border: none;
+    border-radius: $border-radius;
+    font-size: $font-size-base;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: $color-accent;
+    }
+  }
+}
