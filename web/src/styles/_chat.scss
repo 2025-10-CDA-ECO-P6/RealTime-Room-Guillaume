@@ -1,0 +1,118 @@
+@use 'variables' as *;
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: $spacing-md;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $color-border;
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $color-dark;
+  }
+
+  &__room-badge {
+    font-size: $font-size-sm;
+    color: $color-accent;
+    background-color: $color-beige;
+    padding: $spacing-xs $spacing-md;
+    border-radius: $border-radius;
+    font-weight: 500;
+  }
+
+  &__messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    min-height: 300px;
+    max-height: 400px;
+    padding: $spacing-sm;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    background-color: $color-bg;
+  }
+
+  &__message {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    &--own {
+      align-items: flex-end;
+
+      .chat__bubble {
+        background-color: $color-dark;
+        color: $color-white;
+      }
+    }
+  }
+
+  &__pseudo {
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $color-accent;
+  }
+
+  &__bubble {
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-base;
+    max-width: 80%;
+  }
+
+  &__empty {
+    text-align: center;
+    color: $color-border;
+    font-size: $font-size-sm;
+    margin: auto;
+  }
+
+  &__form {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__input {
+    flex: 1;
+    padding: $spacing-sm $spacing-md;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    font-size: $font-size-base;
+    background-color: $color-white;
+    color: $color-dark;
+    outline: none;
+
+    &:focus {
+      border-color: $color-accent;
+    }
+  }
+
+  &__btn {
+    padding: $spacing-sm $spacing-lg;
+    background-color: $color-dark;
+    color: $color-white;
+    border: none;
+    border-radius: $border-radius;
+    font-size: $font-size-base;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: $color-accent;
+    }
+  }
+}

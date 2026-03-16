@@ -62,19 +62,36 @@ export default function Chat() {
   }
 
   return (
-    <div>
-      <h2>Room : {room}</h2>
-      <div>
+    <div className="chat">
+      <div className="chat__header">
+        <h2 className="chat__title">Chat</h2>
+        <span className="chat__room-badge">{room}</span>
+      </div>
+      <div className="chat__messages">
+        {messages.length === 0 && (
+          <span className="chat__empty">Aucun message pour l'instant...</span>
+        )}
         {messages.map((msg, i) => (
-          <p key={i}><strong>{msg.pseudo}</strong> : {msg.message}</p>
+          <div
+            key={i}
+            className={`chat__message ${msg.pseudo === pseudo ? 'chat__message--own' : ''}`}
+          >
+            <span className="chat__pseudo">{msg.pseudo}</span>
+            <div className="chat__bubble">{msg.message}</div>
+          </div>
         ))}
       </div>
-      <input
-        value={message}
-        placeholder="Message"
-        onChange={(e) => setMessage(e.target.value)}
-      />
-      <button onClick={sendMessage}>Envoyer</button>
+      <div className="chat__form">
+        <input
+          className="chat__input"
+          value={message}
+          placeholder="Ton message..."
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <button className="chat__btn" onClick={sendMessage}>
+          Envoyer
+        </button>
+      </div>
     </div>
   )
 }
