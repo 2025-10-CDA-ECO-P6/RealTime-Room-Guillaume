@@ -1,0 +1,30 @@
+@use 'variables' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-xl;
+  background-color: $color-white;
+  border-bottom: 1px solid $color-border;
+
+  &__logo {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $color-dark;
+    letter-spacing: -0.5px;
+
+    span {
+      color: $color-accent;
+    }
+  }
+
+  &__room {
+    font-size: $font-size-sm;
+    color: $color-accent;
+    background-color: $color-beige;
+    padding: $spacing-xs $spacing-md;
+    border-radius: $border-radius;
+    font-weight: 500;
+  }
+}

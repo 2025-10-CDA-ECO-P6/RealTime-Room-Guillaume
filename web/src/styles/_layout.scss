@@ -1,0 +1,31 @@
+@use 'variables' as *;
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app__main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-lg;
+  padding: $spacing-md;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 3fr 2fr;
+    padding: $spacing-xl;
+  }
+}
+
+.app__chat,
+.app__game {
+  background-color: $color-white;
+  border-radius: $border-radius-lg;
+  border: 1px solid $color-border;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+}
