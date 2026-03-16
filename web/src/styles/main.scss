@@ -1,13 +1,15 @@
 @use 'variables' as *;
 @use 'header';
-@use 'chat';
-@use 'join-room';
 @use 'layout';
+@use 'join-room';
+@use 'chat';
 @use 'game';
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -17,5 +19,6 @@ body {
   background-color: $color-bg;
   font-family: $font-primary;
   font-size: $font-size-base;
-  color: $color-panel-dark;
+  color: $color-text-light;
+  -webkit-font-smoothing: antialiased;
 }

@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-md $spacing-xl;
+  padding: $spacing-md $spacing-lg;
   background-color: $color-surface;
   border-bottom: 1px solid $color-border;
 
@@ -13,18 +13,15 @@
     font-weight: 600;
     color: $color-text-light;
     letter-spacing: -0.5px;
-
-    span {
-      color: $color-accent;
-    }
   }
 
   &__room {
     font-size: $font-size-sm;
     color: $color-accent;
-    background-color: $color-panel-light;
+    background-color: rgba($color-accent, 0.15);
     padding: $spacing-xs $spacing-md;
     border-radius: $border-radius;
     font-weight: 500;
+    border: 1px solid rgba($color-accent, 0.3);
   }
 }

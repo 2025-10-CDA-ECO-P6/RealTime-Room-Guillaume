@@ -9,51 +9,32 @@
 .app__main {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; 
   gap: $spacing-lg;
   padding: $spacing-md;
 
   @media (min-width: 768px) {
-    grid-template-columns: 3fr 2fr;
-    padding: $spacing-lg;
+    grid-template-columns: 35rem 50rem; 
+    padding: $spacing-xl;
+    align-items: start;
+    justify-content: space-around;
   }
 }
 
-.app__chat,
+.app__chat {
+  background-color: $color-panel-light;
+  border-radius: $border-radius-lg;
+  border: 1px solid darken($color-panel-light, 10%);
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+}
+
 .app__game {
-  background-color: $color-text-light;
+  background-color: $color-panel-dark;
   border-radius: $border-radius-lg;
   border: 1px solid $color-border;
   padding: $spacing-lg;
   display: flex;
   flex-direction: column;
-  min-height: 300px; 
-  max-height: 600px;  
-}
-
-.app__chat {
-  background-color: $color-text-light;
-}
-
-.app__game {
-  background-color: $color-panel-dark;
-  border: none;
-}
-
-.game__title {
-  color: $color-text-light;
-}
-
-.game__header {
-  border-bottom-color: $color-border; 
-}
-
-.game__board {
-  background-color: $color-felt;        
-  border-color: $color-border;    
-  color: $color-border;                    
-}
-
-.game__input {
-  background-color: $color-overlay-90;    
 }

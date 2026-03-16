@@ -6,14 +6,14 @@
   justify-content: center;
   align-items: center;
   gap: $spacing-md;
-  min-height: 400px;
+  padding: $spacing-xl 0;
   flex: 1;
 
   &__title {
     font-size: $font-size-lg;
     font-weight: 600;
-    color: $color-panel-dark;
-    margin-bottom: $spacing-sm;
+    color: $color-text-dark;
+    margin-bottom: $spacing-xs;
   }
 
   &__form {
@@ -21,22 +21,27 @@
     flex-direction: column;
     gap: $spacing-sm;
     width: 100%;
-    max-width: 360px;
-    background-color: $color-panel-light;
+    max-width: 21.25rem;
+    background-color: darken($color-panel-light, 5%);
     padding: $spacing-lg;
     border-radius: $border-radius-lg;
-    border: 1px solid $color-border;
+    border: 1px solid darken($color-panel-light, 12%);
   }
 
   &__input {
     width: 100%;
     padding: $spacing-sm $spacing-md;
-    border: 1px solid $color-border;
+    border: 1px solid darken($color-panel-light, 12%);
     border-radius: $border-radius;
     font-size: $font-size-base;
-    background-color: $color-text-light;
-    color: $color-panel-dark;
+    background-color: $color-panel-light;
+    color: $color-text-dark;
     outline: none;
+    font-family: inherit;
+
+    &::placeholder {
+      color: lighten($color-text-dark, 50%);
+    }
 
     &:focus {
       border-color: $color-accent;
@@ -45,17 +50,19 @@
 
   &__btn {
     padding: $spacing-sm $spacing-md;
-    background-color: $color-panel-dark;
+    background-color: $color-text-dark;
     color: $color-text-light;
     border: none;
     border-radius: $border-radius;
     font-size: $font-size-base;
     font-weight: 500;
     cursor: pointer;
+    font-family: inherit;
     transition: background-color 0.2s;
 
     &:hover {
       background-color: $color-accent;
+      color: $color-text-dark;
     }
   }
 }

@@ -18,6 +18,7 @@
     font-size: $font-size-lg;
     font-weight: 600;
     color: $color-accent;
+    letter-spacing: 0.5px;
   }
 
   &__board {
@@ -25,11 +26,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
+    min-height: 13.75rem;
     border: 1px solid $color-border;
     border-radius: $border-radius;
-    background-color: $color-bg;
-    color: $color-border;
+    background-color: $color-felt;
+    color: rgba($color-text-light, 0.4);
     font-size: $font-size-sm;
   }
 
@@ -44,9 +45,14 @@
     border: 1px solid $color-border;
     border-radius: $border-radius;
     font-size: $font-size-base;
-    background-color: $color-text-light;
-    color: $color-panel-dark;
+    background-color: rgba($color-text-light, 0.9);
+    color: $color-text-dark;
     outline: none;
+    font-family: inherit;
+
+    &::placeholder {
+      color: lighten($color-text-dark, 40%);
+    }
 
     &:focus {
       border-color: $color-accent;
@@ -56,16 +62,17 @@
   &__btn {
     padding: $spacing-sm $spacing-lg;
     background-color: $color-accent;
-    color: $color-text-light;
+    color: $color-text-dark;
     border: none;
     border-radius: $border-radius;
     font-size: $font-size-base;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: $color-panel-dark;
+      background-color: lighten($color-accent, 10%);
     }
   }
 }
