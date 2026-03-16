@@ -17,7 +17,7 @@
   &__title {
     font-size: $font-size-lg;
     font-weight: 600;
-    color: $color-dark;
+    color: $color-accent;
   }
 
   &__board {
@@ -44,8 +44,8 @@
     border: 1px solid $color-border;
     border-radius: $border-radius;
     font-size: $font-size-base;
-    background-color: $color-white;
-    color: $color-dark;
+    background-color: $color-text-light;
+    color: $color-panel-dark;
     outline: none;
 
     &:focus {
@@ -56,7 +56,7 @@
   &__btn {
     padding: $spacing-sm $spacing-lg;
     background-color: $color-accent;
-    color: $color-white;
+    color: $color-text-light;
     border: none;
     border-radius: $border-radius;
     font-size: $font-size-base;
@@ -65,7 +65,7 @@
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: $color-dark;
+      background-color: $color-panel-dark;
     }
   }
 }

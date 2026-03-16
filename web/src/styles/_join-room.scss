@@ -6,12 +6,13 @@
   justify-content: center;
   align-items: center;
   gap: $spacing-md;
+  min-height: 400px;
   flex: 1;
 
   &__title {
     font-size: $font-size-lg;
     font-weight: 600;
-    color: $color-dark;
+    color: $color-panel-dark;
     margin-bottom: $spacing-sm;
   }
 
@@ -21,7 +22,7 @@
     gap: $spacing-sm;
     width: 100%;
     max-width: 360px;
-    background-color: $color-beige;
+    background-color: $color-panel-light;
     padding: $spacing-lg;
     border-radius: $border-radius-lg;
     border: 1px solid $color-border;
@@ -33,8 +34,8 @@
     border: 1px solid $color-border;
     border-radius: $border-radius;
     font-size: $font-size-base;
-    background-color: $color-white;
-    color: $color-dark;
+    background-color: $color-text-light;
+    color: $color-panel-dark;
     outline: none;
 
     &:focus {
@@ -44,8 +45,8 @@
 
   &__btn {
     padding: $spacing-sm $spacing-md;
-    background-color: $color-dark;
-    color: $color-white;
+    background-color: $color-panel-dark;
+    color: $color-text-light;
     border: none;
     border-radius: $border-radius;
     font-size: $font-size-base;

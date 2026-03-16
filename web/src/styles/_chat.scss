@@ -17,13 +17,13 @@
   &__title {
     font-size: $font-size-lg;
     font-weight: 600;
-    color: $color-dark;
+    color: $color-panel-dark;
   }
 
   &__room-badge {
     font-size: $font-size-sm;
     color: $color-accent;
-    background-color: $color-beige;
+    background-color: $color-panel-light;
     padding: $spacing-xs $spacing-md;
     border-radius: $border-radius;
     font-weight: 500;
@@ -52,8 +52,8 @@
       align-items: flex-end;
 
       .chat__bubble {
-        background-color: $color-dark;
-        color: $color-white;
+        background-color: $color-panel-dark;
+        color: $color-text-light;
       }
     }
   }
@@ -65,7 +65,7 @@
   }
 
   &__bubble {
-    background-color: $color-white;
+    background-color: $color-text-light;
     border: 1px solid $color-border;
     border-radius: $border-radius;
     padding: $spacing-xs $spacing-md;
@@ -91,8 +91,8 @@
     border: 1px solid $color-border;
     border-radius: $border-radius;
     font-size: $font-size-base;
-    background-color: $color-white;
-    color: $color-dark;
+    background-color: $color-text-light;
+    color: $color-panel-dark;
     outline: none;
 
     &:focus {
@@ -102,8 +102,8 @@
 
   &__btn {
     padding: $spacing-sm $spacing-lg;
-    background-color: $color-dark;
-    color: $color-white;
+    background-color: $color-panel-dark;
+    color: $color-text-light;
     border: none;
     border-radius: $border-radius;
     font-size: $font-size-base;

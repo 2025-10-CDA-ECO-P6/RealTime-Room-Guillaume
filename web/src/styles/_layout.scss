@@ -15,17 +15,45 @@
 
   @media (min-width: 768px) {
     grid-template-columns: 3fr 2fr;
-    padding: $spacing-xl;
+    padding: $spacing-lg;
   }
 }
 
 .app__chat,
 .app__game {
-  background-color: $color-white;
+  background-color: $color-text-light;
   border-radius: $border-radius-lg;
   border: 1px solid $color-border;
   padding: $spacing-lg;
   display: flex;
   flex-direction: column;
-  min-height: 500px;
+  min-height: 300px; 
+  max-height: 600px;  
+}
+
+.app__chat {
+  background-color: $color-text-light;
+}
+
+.app__game {
+  background-color: $color-panel-dark;
+  border: none;
+}
+
+.game__title {
+  color: $color-text-light;
+}
+
+.game__header {
+  border-bottom-color: $color-border; 
+}
+
+.game__board {
+  background-color: $color-felt;        
+  border-color: $color-border;    
+  color: $color-border;                    
+}
+
+.game__input {
+  background-color: $color-overlay-90;    
 }

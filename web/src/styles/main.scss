@@ -1,4 +1,9 @@
 @use 'variables' as *;
+@use 'header';
+@use 'chat';
+@use 'join-room';
+@use 'layout';
+@use 'game';
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -12,11 +17,5 @@ body {
   background-color: $color-bg;
   font-family: $font-primary;
   font-size: $font-size-base;
-  color: $color-dark;
+  color: $color-panel-dark;
 }
-
-@use 'header';
-@use 'chat';
-@use 'join-room';
-@use 'game';
-@use 'layout';
