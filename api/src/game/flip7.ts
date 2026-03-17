@@ -28,3 +28,12 @@ export function flip7(hand: number[]): boolean {
     const uniqueCards = new Set(hand);
     return uniqueCards.size === 7;
 }
+
+export function applyDouble(handscore: number, hasDoubleCard: boolean): number {
+    return hasDoubleCard ? handscore * 2 : handscore;
+}
+
+export function applyBonus(handscore: number, bonusCards: number[]): number {
+    const totalBonus = bonusCards.reduce((sum, card) => sum + card, 0);
+    return handscore + totalBonus;
+}

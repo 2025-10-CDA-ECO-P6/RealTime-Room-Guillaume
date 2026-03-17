@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { addCard, addToTotalScore, clearHand, flip7, isBust, scoreSum, winningCondition } from './flip7'
+import { addCard, addToTotalScore, applyBonus, applyDouble, clearHand, flip7, isBust, scoreSum, winningCondition } from './flip7'
 
 describe("isBust", () => {
   it("should return false if the card is not in the hand", () => {
@@ -51,5 +51,23 @@ describe("flip7", () => {
     });
         it("the player gets 7 cards but not all different", () => { 
         expect(flip7([1, 2, 3, 4, 5, 6, 6])).toBe(false)
+    });
+});
+
+describe("applyDouble", () => {
+    it ("should double the turn score if get x2 card", () => {
+        expect(applyDouble(10, true)).toBe(20);
+    });
+    it ("should not change the turn score if no x2 card", () => {
+        expect(applyDouble(10, false)).toBe(10);
+    });
+});
+
+describe("applyBonus", () => {
+    it ("should add to the turn score the bonus points", () => {
+        expect(applyBonus(10, [2,8])).toBe(20);
+    });
+    it ("should not change the turn score if no bonus card", () => {
+        expect(applyBonus(10, [])).toBe(10);
     });
 });
