@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { addCard, clearHand, isBust } from './flip7'
+import { addCard, clearHand, isBust, scoreSum } from './flip7'
 
 describe("isBust", () => {
   it("should return false if the card is not in the hand", () => {
@@ -20,5 +20,11 @@ describe("addCard", () => {
 describe("clearHand", () => {
   it("should clear the hand", () => {
     expect(clearHand([7, 8])).toEqual([]);
+  });
+});
+
+describe("scoreSum", () => {
+  it("should return the sum of the hand", () => {
+    expect(scoreSum([7, 8])).toBe(15);
   });
 });

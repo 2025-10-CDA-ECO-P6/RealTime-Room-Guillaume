@@ -9,3 +9,7 @@ export function addCard (card: number, hand: number[]): number[] {
 export function clearHand (hand: number[]): number[] {
   return [];
 }
+
+export function scoreSum (hand: number[]): number {
+  return hand.reduce((sum, card) => sum + card, 0);
+}   
