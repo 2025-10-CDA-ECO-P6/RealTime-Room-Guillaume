@@ -23,3 +23,8 @@ export function addToTotalScore(totalScore: number, handScore: number): number {
 export function winningCondition(totalScore: number): boolean {
   return totalScore > 200;
 }
+
+export function flip7(hand: number[]): boolean {
+    const uniqueCards = new Set(hand);
+    return uniqueCards.size === 7;
+}
