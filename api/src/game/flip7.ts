@@ -1,5 +1,3 @@
-import e from "express";
-
 export function isBust (card: number, hand: number[]): boolean {
   return hand.includes(card);
 }
@@ -21,7 +19,7 @@ export function addToTotalScore(totalScore: number, handScore: number): number {
 }
 
 export function winningCondition(totalScore: number): boolean {
-  return totalScore > 200;
+  return totalScore >= 200;
 }
 
 export function flip7(hand: number[]): boolean {
