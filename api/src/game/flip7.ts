@@ -41,3 +41,11 @@ export function applyBonus(handscore: number, bonusCards: number[]): number {
     const totalBonus = bonusCards.reduce((sum, card) => sum + card, 0);
     return handscore + totalBonus;
 }
+
+export function calculateTurnScore(hand: number[], hasDoubleCard: boolean, hasFlip7: boolean, bonusCards: number[]): number {
+    let handScore = scoreSum(hand);
+    handScore = applyDouble(handScore, hasDoubleCard);
+    handScore = applyFlip7Bonus(handScore, hasFlip7);
+    handScore = applyBonus(handScore, bonusCards);
+    return handScore;
+}
