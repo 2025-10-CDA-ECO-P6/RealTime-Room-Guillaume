@@ -29,6 +29,10 @@ export function flip7(hand: number[]): boolean {
     return uniqueCards.size === 7;
 }
 
+export function applyFlip7Bonus(handScore: number, hasFlip7: boolean): number {
+    return hasFlip7 ? handScore + 15 : handScore;
+}
+
 export function applyDouble(handscore: number, hasDoubleCard: boolean): number {
     return hasDoubleCard ? handscore * 2 : handscore;
 }
