@@ -13,3 +13,7 @@ export function clearHand (hand: number[]): number[] {
 export function scoreSum (hand: number[]): number {
   return hand.reduce((sum, card) => sum + card, 0);
 }   
+
+export function addToTotalScore(totalScore: number, handScore: number): number {
+  return totalScore + handScore;
+}
