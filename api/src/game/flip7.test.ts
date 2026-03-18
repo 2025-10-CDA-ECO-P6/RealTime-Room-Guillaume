@@ -1,42 +1,42 @@
 import { describe, it, expect } from "vitest";
-import { addCard, addToTotalScore, applyBonus, applyDouble, applyFlip7Bonus, calculateTurnScore, clearHand, flip7, isBust, scoreSum, winningCondition } from './flip7'
+import { addCard, addToTotalScore, applyBonus, applyDouble, applyFlip7Bonus, calculateTurnScore, clearHand, createDeck, flip7, isBust, scoreSum, winningCondition } from './flip7'
 
 describe("isBust", () => {
   it("should return false if the card is not in the hand", () => {
-    expect(isBust(3, [7, 8])).toBe(false);
+    expect(isBust({ value: 3, type: 'number' }, [{ value: 7, type: 'number' }, { value: 8, type: 'number' }])).toBe(false);
   });
 
   it("should return true if the card is already in the hand", () => {
-    expect(isBust(3, [3, 8])).toBe(true);
+    expect(isBust({ value: 3, type: 'number' }, [{ value: 3, type: 'number' }, { value: 8, type: 'number' }])).toBe(true);
   });
 
   it("should return false if the hand is empty", () => {
-    expect(isBust(3, [])).toBe(false);
+    expect(isBust({ value: 3, type: 'number' }, [])).toBe(false);
   });
 });
 
 describe("addCard", () => {
   it("should add a card to the hand if it's not a bust", () => {
-    expect(addCard(3, [7, 8])).toEqual([7, 8, 3]);
+    expect(addCard({ value: 3, type: 'number' }, [{ value: 7, type: 'number' }, { value: 8, type: 'number' }])).toEqual([{ value: 7, type: 'number' }, { value: 8, type: 'number' }, { value: 3, type: 'number' }]);
   });
-  it("sould add the 0 card to the hand", () => {
-    expect(addCard(0, [7, 8])).toEqual([7, 8, 0]);
+  it("should add the 0 card to the hand", () => {
+    expect(addCard({ value: 0, type: 'number' }, [{ value: 7, type: 'number' }, { value: 8, type: 'number' }])).toEqual([{ value: 7, type: 'number' }, { value: 8, type: 'number' }, { value: 0, type: 'number' }]);
   });
 });
 
 describe("clearHand", () => {
   it("should clear the hand", () => {
-    expect(clearHand([7, 8])).toEqual([]);
+    expect(clearHand([{ value: 7, type: 'number' }, { value: 8, type: 'number' }])).toEqual([]);
   });
 });
 
 describe("scoreSum", () => {
   it("should return the sum of the hand", () => {
-    expect(scoreSum([7, 8])).toBe(15);
+    expect(scoreSum([{ value: 7, type: 'number' }, { value: 8, type: 'number' }])).toBe(15);
   });
 
   it("should return 0 if the hand contains only a 0 card", () => {
-    expect(scoreSum([0])).toBe(0);
+    expect(scoreSum([{ value: 0, type: 'number' }])).toBe(0);
   });
 
   it("should return 0 if the hand is empty", () => {
@@ -46,7 +46,7 @@ describe("scoreSum", () => {
 
 describe("addToTotalScore", () => {
   it("should add the hand score to the total score", () => {
-    expect(addToTotalScore(10, scoreSum([7, 8]))).toBe(25);
+    expect(addToTotalScore(10, scoreSum([{ value: 7, type: 'number' }, { value: 8, type: 'number' }]))).toBe(25);
   });
 
   it("should return 0 if the hand is empty", () => {
@@ -70,20 +70,51 @@ describe("winningCondition", () => {
 
 describe("flip7", () => {
     it("the player gets 7 différents cards", () => {
-        expect(flip7([1, 2, 3, 4, 5, 6, 7])).toBe(true)    
+        expect(flip7([
+          { value: 1, type: 'number' }, 
+          { value: 2, type: 'number' }, 
+          { value: 3, type: 'number' }, 
+          { value: 4, type: 'number' }, 
+          { value: 5, type: 'number' }, 
+          { value: 6, type: 'number' }, 
+          { value: 7, type: 'number' }
+        ])).toBe(true)    
     });
     
     it("the player gets 7 cards but not all different", () => { 
-        expect(flip7([1, 2, 3, 4, 5, 6, 6])).toBe(false)
+        expect(flip7([
+          { value: 1, type: 'number' }, 
+          { value: 2, type: 'number' }, 
+          { value: 3, type: 'number' }, 
+          { value: 4, type: 'number' }, 
+          { value: 5, type: 'number' }, 
+          { value: 6, type: 'number' }, 
+          { value: 6, type: 'number' }
+        ])).toBe(false)
     });
 
     it("the player gets less than 7 cards", () => {
-        expect(flip7([1, 2, 3])).toBe(false)
+        expect(flip7([
+          { value: 1, type: 'number' }, 
+          { value: 2, type: 'number' }, 
+          { value: 3, type: 'number' }
+        ])).toBe(false)
     });
 
     it("the player gets an empty hand", () => {
         expect(flip7([])).toBe(false)
     });
+    it("should return false if the player has 6 number cards and 1 bonus card", () => {
+    expect(flip7([
+        { value: 1, type: 'number' },
+        { value: 2, type: 'number' },
+        { value: 3, type: 'number' },
+        { value: 4, type: 'number' },
+        { value: 5, type: 'number' },
+        { value: 6, type: 'number' },
+        { value: 4, type: 'bonus' }
+    ])).toBe(false)
+});
 });
 
 describe("applyFlip7Bonus", () => {
@@ -106,7 +137,7 @@ describe("applyDouble", () => {
 
 describe("applyBonus", () => {
     it ("should add to the turn score the bonus points", () => {
-        expect(applyBonus(10, [2,8])).toBe(20);
+        expect(applyBonus(10, [{ value: 2, type: 'bonus' }, { value: 8, type: 'bonus' }])).toBe(20);
     });
     it ("should not change the turn score if no bonus card", () => {
         expect(applyBonus(10, [])).toBe(10);
@@ -115,9 +146,32 @@ describe("applyBonus", () => {
 
 describe("calculateTurnScore", () => {
     it("should calculate the turn score with all bonuses applied", () => {
-        expect(calculateTurnScore([1, 2, 3, 4, 5, 6, 7], true, true, [2, 8])).toBe(81);
+        expect(calculateTurnScore([{ value: 1, type: 'number' }, { value: 2, type: 'number' }, { value: 3, type: 'number' }, { value: 4, type: 'number' }, { value: 5, type: 'number' }, { value: 6, type: 'number' }, { value: 7, type: 'number' }], 
+          true, 
+          true, 
+          [{ value: 2, type: 'bonus' }, { value: 8, type: 'bonus' }])).toBe(81);
     });
     it("should calculate the turn score without any bonuses", () => {
-        expect(calculateTurnScore([1, 2, 3], false, false, [])).toBe(6);
+        expect(calculateTurnScore([{ value: 1, type: 'number' }, { value: 2, type: 'number' }, { value: 3, type: 'number' }], 
+          false, 
+          false, 
+          [])).toBe(6);
     });
 });
+
+describe("createDeck", () => {
+    it("should create a deck of 86 cards", () => {
+      expect(createDeck().length).toBe(85);
+    });
+    it("should contain 12 copies of the card 12", () => {
+      const deck = createDeck()
+      const count = deck.filter(card => card.value === 12).length
+      expect(count).toBe(12)
+    });
+    it("sould contain 1 copy of the card 0", () => {
+      const deck = createDeck()
+      const count = deck.filter(card => card.value  === 0 && card.type === 'number').length
+      expect(count).toBe(1)
+    });
+});
+      
