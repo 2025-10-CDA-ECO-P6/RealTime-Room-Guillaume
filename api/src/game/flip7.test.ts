@@ -166,8 +166,8 @@ describe("calculateTurnScore", () => {
 });
 
 describe("createDeck", () => {
-    it("should create a deck of 86 cards", () => {
-      expect(createDeck().length).toBe(85);
+    it("should create a deck of 94 cards", () => {
+      expect(createDeck().length).toBe(94);
     });
     it("should contain 12 copies of the card 12", () => {
       const deck = createDeck()
@@ -201,12 +201,12 @@ describe("drawCard", () => {
         expect(result).not.toBeNull()
         if (!result) return
         expect(result.card).toEqual(deck[0])
-        expect(result.remainingDeck.length).toBe(84)
+        expect(result.remainingDeck.length).toBe(93)
     });
     it("should not mutate the original deck", () => {
         const deck = createDeck()
         drawCard(deck)
-        expect(deck.length).toBe(85)
+        expect(deck.length).toBe(94)
     });
     it("should return null if the deck is empty", () => {
         const result = drawCard([])

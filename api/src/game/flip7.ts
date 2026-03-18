@@ -1,6 +1,7 @@
 export type Card = {
   value: number
-  type: 'number' | 'bonus' | 'double'
+  type: 'number' | 'bonus' | 'double' | 'action'
+  effect?: 'freeze' | 'flip_three' | 'second_chance'
 }
 
 export function isBust (card: Card, hand: Card[]): boolean {
@@ -73,6 +74,12 @@ export function createDeck(): Card[] {
     deck.push({ value: 10, type: 'bonus' });// Bonus cards have a value that will be added to the score
 
     deck.push({ value: 0, type: 'double' }); // Double card doesn't have a value, it just doubles the score
+
+    for (let k = 1; k <= 3; k++) {
+        deck.push({ value: 0, type: 'action', effect: 'freeze' });
+        deck.push({ value: 0, type: 'action', effect: 'flip_three' });
+        deck.push({ value: 0, type: 'action', effect: 'second_chance' });
+    }
 
     return deck;
 }
