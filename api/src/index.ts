@@ -89,7 +89,6 @@ io.on('connection', (socket) => {
     state.totalScore = addToTotalScore(state.totalScore, roundScore)
     state.isGameOver = winningCondition(state.totalScore)
     state.hand = clearHand(state.hand)
-    state.deck = shuffleDeck(createDeck())
 
     socket.emit('game_state', state)
     gameStates.set(socket.id, state)
