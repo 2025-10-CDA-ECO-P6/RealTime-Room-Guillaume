@@ -24,6 +24,7 @@ app.get('/health', (req, res) => {
 type GameState = {
   hand: Card[]
   deck: Card[]
+  discardPile: Card[] 
   totalScore: number
   isBust: boolean
   isGameOver: boolean
@@ -53,6 +54,7 @@ io.on('connection', (socket) => {
     const state: GameState = {
       hand: [],
       deck,
+      discardPile: [],
       totalScore: 0,
       isBust: false,
       isGameOver: false
@@ -65,9 +67,15 @@ io.on('connection', (socket) => {
     const state = gameStates.get(socket.id)
     if (!state) return
 
+    if (state.deck.length === 0) {
+      state.deck = shuffleDeck(state.discardPile)
+      state.discardPile = []
+    }
+
     const { card, remainingDeck } = drawCard(state.deck)
     
     if (isBust(card, state.hand)) {
+      state.discardPile = [...state.discardPile, ...state.hand]
       state.hand = clearHand(state.hand)
       state.isBust = true
       state.deck = remainingDeck
@@ -88,6 +96,7 @@ io.on('connection', (socket) => {
     const roundScore = calculateTurnScore(state.hand)
     state.totalScore = addToTotalScore(state.totalScore, roundScore)
     state.isGameOver = winningCondition(state.totalScore)
+    state.discardPile = [...state.discardPile, ...state.hand]
     state.hand = clearHand(state.hand)
 
     socket.emit('game_state', state)
