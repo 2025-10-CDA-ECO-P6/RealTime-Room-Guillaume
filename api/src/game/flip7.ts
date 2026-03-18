@@ -48,10 +48,11 @@ export function applyBonus(handscore: number, bonusCards: Card[]): number {
     return handscore + totalBonus;
 }
 
-export function calculateTurnScore(hand: Card[], hasDoubleCard: boolean, hasFlip7: boolean, bonusCards: Card[]): number {
-    let handScore = scoreSum(hand);
-    handScore = applyDouble(handScore, hasDoubleCard);
-    handScore = applyFlip7Bonus(handScore, hasFlip7);
+export function calculateTurnScore(hand: Card[]): number {
+    const { numberCards, bonusCards, hasDouble } = sortHand(hand);
+    let handScore = scoreSum(numberCards);
+    handScore = applyDouble(handScore, hasDouble);
+    handScore = applyFlip7Bonus(handScore, flip7(hand));
     handScore = applyBonus(handScore, bonusCards);
     return handScore;
 }

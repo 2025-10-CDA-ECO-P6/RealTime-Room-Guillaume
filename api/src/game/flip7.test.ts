@@ -145,17 +145,23 @@ describe("applyBonus", () => {
 });
 
 describe("calculateTurnScore", () => {
-    it("should calculate the turn score with all bonuses applied", () => {
-        expect(calculateTurnScore([{ value: 1, type: 'number' }, { value: 2, type: 'number' }, { value: 3, type: 'number' }, { value: 4, type: 'number' }, { value: 5, type: 'number' }, { value: 6, type: 'number' }, { value: 7, type: 'number' }], 
-          true, 
-          true, 
-          [{ value: 2, type: 'bonus' }, { value: 8, type: 'bonus' }])).toBe(81);
+    it("should calculate the turn score with a mixed hand", () => {
+        const hand: Card[] = [
+            { value: 1, type: 'number' },
+            { value: 2, type: 'number' },
+            { value: 3, type: 'number' },
+            { value: 4, type: 'number' },
+            { value: 5, type: 'number' },
+            { value: 6, type: 'number' },
+            { value: 7, type: 'number' },
+            { value: 0, type: 'double' },
+            { value: 2, type: 'bonus' },
+            { value: 8, type: 'bonus' }
+        ]
+        expect(calculateTurnScore(hand)).toBe(81)
     });
     it("should calculate the turn score without any bonuses", () => {
-        expect(calculateTurnScore([{ value: 1, type: 'number' }, { value: 2, type: 'number' }, { value: 3, type: 'number' }], 
-          false, 
-          false, 
-          [])).toBe(6);
+        expect(calculateTurnScore([{ value: 1, type: 'number' }, { value: 2, type: 'number' }, { value: 3, type: 'number' }])).toBe(6);
     });
 });
 
