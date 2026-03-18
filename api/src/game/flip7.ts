@@ -89,3 +89,10 @@ export function drawCard(deck: Card[]): { card: Card, remainingDeck: Card[] } {
     const [card, ...remainingDeck] = deck;
     return { card, remainingDeck };
 }
+
+export function sortHand(hand: Card[]): { numberCards: Card[], bonusCards: Card[], hasDouble: boolean } {
+    const numberCards = hand.filter(card => card.type === 'number').sort((a, b) => a.value - b.value);
+    const bonusCards = hand.filter(card => card.type === 'bonus').sort((a, b) => a.value - b.value);
+    const doubleCard = hand.find(card => card.type === 'double');
+    return { numberCards, bonusCards, hasDouble: !!doubleCard };
+}
