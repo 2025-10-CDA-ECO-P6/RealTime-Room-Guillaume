@@ -110,6 +110,8 @@ La logique métier du jeu a été développée en TDD :
 - Envoyer et recevoir des messages en temps réel
 - Mini-jeu Flip 7 intégré
 - Pas de persistance (assumé et documenté)
+- Piocher ou stopper à chaque tour
+- Gestion du bust, de la défausse et du deck vide
 
 ## Déploiement
 
@@ -132,3 +134,7 @@ Le déploiement est automatique à chaque push sur `main` grâce à `autoDeploy:
 | join_room | client → serveur | `room: string` | Rejoindre une room |
 | send_message | client → serveur | `{ room, pseudo, message }` | Envoyer un message |
 | receive_message | serveur → client | `{ room, pseudo, message }` | Recevoir un message |
+| game_start | client → serveur | - | Démarre une partie |
+| draw_card | client → serveur | - | Pioche une carte |
+| stop | client → serveur | - | Arrête et encaisse les points |
+| game_state | serveur → client | `{ hand, deck, discardPile, totalScore, isBust, isGameOver }` | État du jeu |
