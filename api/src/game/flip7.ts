@@ -86,7 +86,8 @@ export function shuffleDeck(deck: Card[]): Card[] {
     return shuffledDeck;
 }
 
-export function drawCard(deck: Card[]): { card: Card, remainingDeck: Card[] } {
+export function drawCard(deck: Card[]): { card: Card, remainingDeck: Card[] } | null {
+    if (deck.length === 0) return null
     const [card, ...remainingDeck] = deck;
     return { card, remainingDeck };
 }

@@ -197,16 +197,22 @@ describe("shuffleDeck", () => {
 describe("drawCard", () => {
     it("should draw a card from the deck", () => {
         const deck = createDeck()
-        const { card, remainingDeck } = drawCard(deck)
-        expect(card).toEqual(deck[0])
-        expect(remainingDeck.length).toBe(84)
+        const result = drawCard(deck)
+        expect(result).not.toBeNull()
+        if (!result) return
+        expect(result.card).toEqual(deck[0])
+        expect(result.remainingDeck.length).toBe(84)
     });
     it("should not mutate the original deck", () => {
         const deck = createDeck()
-        const { card, remainingDeck } = drawCard(deck)
+        drawCard(deck)
         expect(deck.length).toBe(85)
     });
-})  
+    it("should return null if the deck is empty", () => {
+        const result = drawCard([])
+        expect(result).toBeNull()
+    });
+})
 
 describe("sortHand", () => {
     it("should separate number cards, bonus cards and double card", () => {

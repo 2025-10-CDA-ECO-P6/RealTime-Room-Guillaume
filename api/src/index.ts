@@ -72,7 +72,10 @@ io.on('connection', (socket) => {
       state.discardPile = []
     }
 
-    const { card, remainingDeck } = drawCard(state.deck)
+    const result = drawCard(state.deck)
+    if (!result) return
+
+    const { card, remainingDeck } = result
     
     if (isBust(card, state.hand)) {
       state.discardPile = [...state.discardPile, ...state.hand]
