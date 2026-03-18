@@ -76,6 +76,14 @@ io.on('connection', (socket) => {
     if (!result) return
 
     const { card, remainingDeck } = result
+
+    if (card.type === 'action') {
+      state.discardPile = [...state.discardPile, card]
+      state.deck = remainingDeck
+      socket.emit('game_state', state)
+      gameStates.set(socket.id, state)
+      return
+    }
     
     if (isBust(card, state.hand)) {
       state.discardPile = [...state.discardPile, ...state.hand]
