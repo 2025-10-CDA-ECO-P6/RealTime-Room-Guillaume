@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { addCard, addToTotalScore, applyBonus, applyDouble, applyFlip7Bonus, calculateTurnScore, clearHand, createDeck, flip7, isBust, scoreSum, shuffleDeck, winningCondition } from './flip7'
+import { addCard, addToTotalScore, applyBonus, applyDouble, applyFlip7Bonus, calculateTurnScore, Card, clearHand, createDeck, drawCard, flip7, isBust, scoreSum, shuffleDeck, winningCondition } from './flip7'
 
 describe("isBust", () => {
   it("should return false if the card is not in the hand", () => {
@@ -186,4 +186,11 @@ describe("shuffleDeck", () => {
         const shuffled = shuffleDeck(deck)
         expect(shuffled).not.toBe(deck) 
     })
+})
+
+it("should draw a card from the deck", () => {
+    const deck = createDeck()
+    const { card, remainingDeck } = drawCard(deck)
+    expect(card).toEqual(deck[0])
+    expect(remainingDeck.length).toBe(84)
 })
