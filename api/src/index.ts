@@ -179,6 +179,25 @@ io.on('connection', (socket) => {
 
     io.to(roomName).emit('room_state', roomState)
   })
+
+  socket.on('game_reset', (roomName: string) => {
+    const roomState = rooms.get(roomName)
+    if (!roomState || !roomState.isGameOver) return
+
+    roomState.isGameStarted = false
+    roomState.isGameOver = false
+    roomState.deck = []
+    roomState.discardPile = []
+    roomState.currentPlayerIndex = 0
+    roomState.players.forEach(p => {
+      p.hand = []
+      p.isBust = false
+      p.hasStopped = false
+      p.isReady = false
+    })
+
+    io.to(roomName).emit('room_state', roomState)
+  })
 })
 
 httpServer.listen(PORT, () => {

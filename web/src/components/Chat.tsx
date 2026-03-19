@@ -8,7 +8,7 @@ interface Message {
 }
 
 interface ChatProps {
-  onJoin: (roomName: string, playerPseudo: string) => void
+  onJoin: (roomName: string) => void
 }
 
 export default function Chat({ onJoin }: ChatProps) {
@@ -32,7 +32,7 @@ export default function Chat({ onJoin }: ChatProps) {
     if (room && pseudo) {
       socket.emit('join_room', { room, pseudo })
       setJoined(true)
-      onJoin(room, pseudo)
+      onJoin(room)
     }
   }
 

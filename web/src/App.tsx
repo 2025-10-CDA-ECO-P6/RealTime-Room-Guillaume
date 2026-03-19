@@ -5,12 +5,10 @@ import { useState } from 'react'
 
 function App() {
   const [room, setRoom] = useState('')
-  const [pseudo, setPseudo] = useState('')
   const [joined, setJoined] = useState(false)
 
-  const handleJoin = (roomName: string, playerPseudo: string) => {
+  const handleJoin = (roomName: string) => {
     setRoom(roomName)
-    setPseudo(playerPseudo)
     setJoined(true)
   }
 
@@ -26,7 +24,7 @@ function App() {
         </section>
         {joined && (
           <section className="app__game">
-            <Game room={room} pseudo={pseudo} />
+            <Game room={room} />
           </section>
         )}
       </main>

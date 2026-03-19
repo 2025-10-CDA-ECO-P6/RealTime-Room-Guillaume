@@ -28,10 +28,9 @@ interface RoomState {
 
 interface GameProps {
   room: string
-  pseudo: string
 }
 
-export default function Game({ room, pseudo }: GameProps) {
+export default function Game({ room }: GameProps) {
   const [roomState, setRoomState] = useState<RoomState | null>(null)
 
   useEffect(() => {
@@ -102,6 +101,14 @@ export default function Game({ room, pseudo }: GameProps) {
           <button className="game__btn game__btn--stop" onClick={handleStop}
             disabled={!isMyTurn || me?.isBust || me?.hasStopped}>
             Stop
+          </button>
+        </div>
+      )}
+
+      {roomState?.isGameOver && (
+        <div className="game__controls">
+          <button className="game__btn" onClick={() => socket.emit('game_reset', room)}>
+            Rejouer
           </button>
         </div>
       )}
