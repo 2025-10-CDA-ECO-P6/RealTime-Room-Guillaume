@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
       socket.emit('game_in_progress')
       return
     }
-    
+
     roomState.players.push({
       socketId: socket.id,
       pseudo: data.pseudo,
@@ -143,7 +143,11 @@ io.on('connection', (socket) => {
     }
 
     currentPlayer.hasPlayedThisRound = true
-    roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
+    let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+    while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+      next = (next + 1) % roomState.players.length
+    }
+    roomState.currentPlayerIndex = next
 
     const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
@@ -174,7 +178,6 @@ io.on('connection', (socket) => {
     roomState.discardPile = [...roomState.discardPile, ...currentPlayer.hand]
     currentPlayer.hand = clearHand(currentPlayer.hand)
     roomState.isGameOver = winningCondition(currentPlayer.totalScore)
-    roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
 
     const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
@@ -187,6 +190,12 @@ io.on('connection', (socket) => {
         p.hasPlayedThisRound = false
       })
       roomState.currentPlayerIndex = 0
+    } else {
+      let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+      while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+        next = (next + 1) % roomState.players.length
+      }
+      roomState.currentPlayerIndex = next
     }
 
     io.to(roomName).emit('room_state', roomState)
