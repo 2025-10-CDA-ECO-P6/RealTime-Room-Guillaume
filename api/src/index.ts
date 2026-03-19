@@ -58,6 +58,12 @@ io.on('connection', (socket) => {
     }
 
     const roomState = rooms.get(data.room)!
+
+    if (roomState.isGameStarted && !roomState.isGameOver) {
+      socket.emit('game_in_progress')
+      return
+    }
+    
     roomState.players.push({
       socketId: socket.id,
       pseudo: data.pseudo,

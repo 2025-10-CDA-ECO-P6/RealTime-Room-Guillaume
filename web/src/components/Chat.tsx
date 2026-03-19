@@ -23,8 +23,14 @@ export default function Chat({ onJoin }: ChatProps) {
       setMessages((prev) => [...prev, data])
     })
 
+    socket.on('game_in_progress', () => {
+      alert('Une partie est déjà en cours dans cette room, réessaie plus tard !')
+      setJoined(false)
+    })
+
     return () => {
       socket.off('receive_message')
+      socket.off('game_in_progress') 
     }
   }, [])
 
