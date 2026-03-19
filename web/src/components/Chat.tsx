@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import socket from '../socket'
 
 interface Message {
@@ -28,23 +28,25 @@ export default function Chat({ onJoin }: ChatProps) {
       setJoined(false)
     })
 
-    socket.on('room_error', (errorMessage: string) => {
-      alert(errorMessage)
-      setJoined(false)
+    socket.once('room_state', () => {
+      setJoined(true)
+      onJoin(roomRef.current)
     })
 
     return () => {
       socket.off('receive_message')
       socket.off('game_in_progress') 
       socket.off('room_error')
+      socket.off('room_state')
     }
   }, [])
+
+  const roomRef = useRef('')
+
 
   const joinRoom = () => {
     if (room && pseudo) {
       socket.emit('join_room', { room, pseudo })
-      setJoined(true)
-      onJoin(room)
     }
   }
 
@@ -68,7 +70,7 @@ export default function Chat({ onJoin }: ChatProps) {
           <input
             className="join-room__input"
             placeholder="Room"
-            onChange={(e) => setRoom(e.target.value)}
+            onChange={(e) => { setRoom(e.target.value); roomRef.current = e.target.value }}
           />
           <button className="join-room__btn" onClick={joinRoom}>
             Rejoindre
