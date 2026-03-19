@@ -26,6 +26,7 @@ type Player = {
   isBust: boolean
   hasStopped: boolean
   isReady: boolean
+  hasPlayedThisRound: boolean
 }
 
 type RoomState = {
@@ -65,6 +66,7 @@ io.on('connection', (socket) => {
       isBust: false,
       hasStopped: false,
       isReady: false,
+      hasPlayedThisRound: false,
     })
 
     io.to(data.room).emit('room_state', roomState)
@@ -130,10 +132,12 @@ io.on('connection', (socket) => {
       roomState.discardPile = [...roomState.discardPile, ...currentPlayer.hand]
       currentPlayer.hand = clearHand(currentPlayer.hand)
       currentPlayer.isBust = true
-      roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
     } else {
       currentPlayer.hand = addCard(card, currentPlayer.hand)
     }
+
+    currentPlayer.hasPlayedThisRound = true
+    roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
 
     const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
@@ -143,6 +147,7 @@ io.on('connection', (socket) => {
         p.isBust = false
         p.hasStopped = false
         p.isReady = false
+        p.hasPlayedThisRound = false
       })
       roomState.currentPlayerIndex = 0
     }
@@ -173,6 +178,7 @@ io.on('connection', (socket) => {
         p.isBust = false
         p.hasStopped = false
         p.isReady = false
+        p.hasPlayedThisRound = false
       })
       roomState.currentPlayerIndex = 0
     }
