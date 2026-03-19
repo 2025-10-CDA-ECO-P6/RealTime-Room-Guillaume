@@ -7,7 +7,11 @@ interface Message {
   message: string
 }
 
-export default function Chat() {
+interface ChatProps {
+  onJoin: (roomName: string, playerPseudo: string) => void
+}
+
+export default function Chat({ onJoin }: ChatProps) {
   const [room, setRoom] = useState('')
   const [pseudo, setPseudo] = useState('')
   const [message, setMessage] = useState('')
@@ -28,6 +32,7 @@ export default function Chat() {
     if (room && pseudo) {
       socket.emit('join_room', { room, pseudo })
       setJoined(true)
+      onJoin(room, pseudo)
     }
   }
 
