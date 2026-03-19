@@ -30,14 +30,58 @@ type GameState = {
   isGameOver: boolean
 }
 
+type Player = {
+  socketId: string
+  pseudo: string
+  hand: Card[]
+  totalScore: number
+  isBust: boolean
+  hasStopped: boolean
+  isReady: boolean
+}
+
+type RoomState = {
+  deck: Card[]
+  discardPile: Card[]
+  players: Player[]
+  currentPlayerIndex: number
+  isGameStarted: boolean
+  isGameOver: boolean
+}
+
+const rooms = new Map<string, RoomState>()
+
 const gameStates = new Map<string, GameState>()
 
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`)
 
-  socket.on('join_room', (room: string) => {
-    socket.join(room)
-    console.log(`${socket.id} joined room: ${room}`)
+  socket.on('join_room', (data: { room: string, pseudo: string }) => {
+    socket.join(data.room)
+    
+    if (!rooms.has(data.room)) {
+      rooms.set(data.room, {
+        deck: [],
+        discardPile: [],
+        players: [],
+        currentPlayerIndex: 0,
+        isGameStarted: false,
+        isGameOver: false
+      })
+    }
+
+    const roomState = rooms.get(data.room)!
+    roomState.players.push({
+      socketId: socket.id,
+      pseudo: data.pseudo,
+      hand: [],
+      totalScore: 0,
+      isBust: false,
+      hasStopped: false,
+      isReady: false,
+    })
+
+    io.to(data.room).emit('room_state', roomState)
   })
 
   socket.on('send_message', (data: { room: string; pseudo: string; message: string }) => {
@@ -112,6 +156,22 @@ io.on('connection', (socket) => {
 
     socket.emit('game_state', state)
     gameStates.set(socket.id, state)
+  })
+
+  socket.on('player_ready', (roomName: string) => {
+    const roomState = rooms.get(roomName)
+    if (!roomState || roomState.isGameStarted) return
+
+    const player = roomState.players.find(p => p.socketId === socket.id)
+    if (!player) return
+    player.isReady = true
+
+    if (roomState.players.every(p => p.isReady)) {
+      roomState.isGameStarted = true
+      roomState.deck = shuffleDeck(createDeck())
+    }
+
+    io.to(roomName).emit('room_state', roomState)
   })
 })
 

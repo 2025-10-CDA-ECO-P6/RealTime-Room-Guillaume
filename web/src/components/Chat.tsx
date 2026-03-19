@@ -26,7 +26,7 @@ export default function Chat() {
 
   const joinRoom = () => {
     if (room && pseudo) {
-      socket.emit('join_room', room)
+      socket.emit('join_room', { room, pseudo })
       setJoined(true)
     }
   }
