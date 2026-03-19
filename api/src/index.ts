@@ -107,55 +107,61 @@ io.on('connection', (socket) => {
     socket.emit('game_state', state)
   })
 
-  socket.on('draw_card', () => {
-    const state = gameStates.get(socket.id)
-    if (!state) return
+  socket.on('draw_card', (roomName: string) => {
+    const roomState = rooms.get(roomName)
+    if (!roomState || !roomState.isGameStarted) return
 
-    if (state.deck.length === 0) {
-      state.deck = shuffleDeck(state.discardPile)
-      state.discardPile = []
+    const currentPlayer = roomState.players[roomState.currentPlayerIndex]
+    if (currentPlayer.socketId !== socket.id) return
+
+    if (roomState.deck.length === 0) {
+      roomState.deck = shuffleDeck(roomState.discardPile)
+      roomState.discardPile = []
     }
 
-    const result = drawCard(state.deck)
+    const result = drawCard(roomState.deck)
     if (!result) return
 
     const { card, remainingDeck } = result
+    roomState.deck = remainingDeck
 
     if (card.type === 'action') {
-      state.discardPile = [...state.discardPile, card]
-      state.deck = remainingDeck
-      socket.emit('game_state', state)
-      gameStates.set(socket.id, state)
+      roomState.discardPile = [...roomState.discardPile, card]
+      io.to(roomName).emit('room_state', roomState)
       return
     }
-    
-    if (isBust(card, state.hand)) {
-      state.discardPile = [...state.discardPile, ...state.hand]
-      state.hand = clearHand(state.hand)
-      state.isBust = true
-      state.deck = remainingDeck
+
+    if (isBust(card, currentPlayer.hand)) {
+      roomState.discardPile = [...roomState.discardPile, ...currentPlayer.hand]
+      currentPlayer.hand = clearHand(currentPlayer.hand)
+      currentPlayer.isBust = true
+
+      roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
     } else {
-      state.hand = addCard(card, state.hand)
-      state.deck = remainingDeck
-      state.isBust = false
+      currentPlayer.hand = addCard(card, currentPlayer.hand)
     }
 
-    socket.emit('game_state', state)
-    gameStates.set(socket.id, state)
-  })
+    io.to(roomName).emit('room_state', roomState)
+})
 
-  socket.on('stop', () => {
-    const state = gameStates.get(socket.id)
-    if (!state) return
+  socket.on('stop', (roomName: string) => {
+    const roomState = rooms.get(roomName)
+    if (!roomState || !roomState.isGameStarted) return
 
-    const roundScore = calculateTurnScore(state.hand)
-    state.totalScore = addToTotalScore(state.totalScore, roundScore)
-    state.isGameOver = winningCondition(state.totalScore)
-    state.discardPile = [...state.discardPile, ...state.hand]
-    state.hand = clearHand(state.hand)
+    const currentPlayer = roomState.players[roomState.currentPlayerIndex]
+    if (currentPlayer.socketId !== socket.id) return
 
-    socket.emit('game_state', state)
-    gameStates.set(socket.id, state)
+    const roundScore = calculateTurnScore(currentPlayer.hand)
+    currentPlayer.totalScore = addToTotalScore(currentPlayer.totalScore, roundScore)
+    currentPlayer.hasStopped = true
+    roomState.discardPile = [...roomState.discardPile, ...currentPlayer.hand]
+    currentPlayer.hand = clearHand(currentPlayer.hand)
+
+    roomState.isGameOver = winningCondition(currentPlayer.totalScore)
+
+    roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
+
+    io.to(roomName).emit('room_state', roomState)
   })
 
   socket.on('player_ready', (roomName: string) => {
