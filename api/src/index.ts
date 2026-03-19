@@ -43,9 +43,15 @@ const rooms = new Map<string, RoomState>()
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`)
 
-  socket.on('join_room', (data: { room: string, pseudo: string }) => {
-    socket.join(data.room)
+  socket.on('join_room', (data: { room: string, pseudo: string }) => { 
+       
+    if (!/^[a-zA-Z0-9]{3,20}$/.test(data.room)) {
+      socket.emit('room_error', 'Le nom de room doit contenir entre 3 et 20 caractères alphanumériques')
+      return
+    }
     
+    socket.join(data.room)
+
     if (!rooms.has(data.room)) {
       rooms.set(data.room, {
         deck: [],
@@ -143,11 +149,6 @@ io.on('connection', (socket) => {
     }
 
     currentPlayer.hasPlayedThisRound = true
-    let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
-    while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
-      next = (next + 1) % roomState.players.length
-    }
-    roomState.currentPlayerIndex = next
 
     const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
@@ -160,6 +161,12 @@ io.on('connection', (socket) => {
         p.hasPlayedThisRound = false
       })
       roomState.currentPlayerIndex = 0
+    } else {
+      let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+      while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+        next = (next + 1) % roomState.players.length
+      }
+      roomState.currentPlayerIndex = next
     }
 
     io.to(roomName).emit('room_state', roomState)

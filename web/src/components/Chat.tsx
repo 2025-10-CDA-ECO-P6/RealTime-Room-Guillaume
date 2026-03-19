@@ -28,9 +28,15 @@ export default function Chat({ onJoin }: ChatProps) {
       setJoined(false)
     })
 
+    socket.on('room_error', (errorMessage: string) => {
+      alert(errorMessage)
+      setJoined(false)
+    })
+
     return () => {
       socket.off('receive_message')
       socket.off('game_in_progress') 
+      socket.off('room_error')
     }
   }, [])
 
