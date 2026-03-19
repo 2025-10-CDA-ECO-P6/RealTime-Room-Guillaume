@@ -5,12 +5,9 @@ import { createDeck, shuffleDeck, drawCard, isBust, addCard, clearHand, calculat
 import type { Card } from './game/flip7'
 
 const app = express()
-
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
-  cors: {
-    origin: '*'
-  }
+  cors: { origin: '*' }
 })
 
 const PORT = process.env.PORT || 3001
@@ -20,15 +17,6 @@ app.use(express.json())
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' })
 })
-
-type GameState = {
-  hand: Card[]
-  deck: Card[]
-  discardPile: Card[] 
-  totalScore: number
-  isBust: boolean
-  isGameOver: boolean
-}
 
 type Player = {
   socketId: string
@@ -50,8 +38,6 @@ type RoomState = {
 }
 
 const rooms = new Map<string, RoomState>()
-
-const gameStates = new Map<string, GameState>()
 
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`)
@@ -90,21 +76,30 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`)
-    gameStates.delete(socket.id)
+    rooms.forEach((roomState, roomName) => {
+      roomState.players = roomState.players.filter(p => p.socketId !== socket.id)
+      if (roomState.players.length === 0) {
+        rooms.delete(roomName)
+      } else {
+        io.to(roomName).emit('room_state', roomState)
+      }
+    })
   })
 
-  socket.on('game_start', () => {
-    const deck = shuffleDeck(createDeck())
-    const state: GameState = {
-      hand: [],
-      deck,
-      discardPile: [],
-      totalScore: 0,
-      isBust: false,
-      isGameOver: false
+  socket.on('player_ready', (roomName: string) => {
+    const roomState = rooms.get(roomName)
+    if (!roomState || roomState.isGameStarted) return
+
+    const player = roomState.players.find(p => p.socketId === socket.id)
+    if (!player) return
+    player.isReady = true
+
+    if (roomState.players.every(p => p.isReady)) {
+      roomState.isGameStarted = true
+      roomState.deck = shuffleDeck(createDeck())
     }
-    gameStates.set(socket.id, state)
-    socket.emit('game_state', state)
+
+    io.to(roomName).emit('room_state', roomState)
   })
 
   socket.on('draw_card', (roomName: string) => {
@@ -135,14 +130,25 @@ io.on('connection', (socket) => {
       roomState.discardPile = [...roomState.discardPile, ...currentPlayer.hand]
       currentPlayer.hand = clearHand(currentPlayer.hand)
       currentPlayer.isBust = true
-
       roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
     } else {
       currentPlayer.hand = addCard(card, currentPlayer.hand)
     }
 
+    const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
+    const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
+
+    if (allDone || someoneFlip7) {
+      roomState.players.forEach(p => {
+        p.isBust = false
+        p.hasStopped = false
+        p.isReady = false
+      })
+      roomState.currentPlayerIndex = 0
+    }
+
     io.to(roomName).emit('room_state', roomState)
-})
+  })
 
   socket.on('stop', (roomName: string) => {
     const roomState = rooms.get(roomName)
@@ -156,25 +162,19 @@ io.on('connection', (socket) => {
     currentPlayer.hasStopped = true
     roomState.discardPile = [...roomState.discardPile, ...currentPlayer.hand]
     currentPlayer.hand = clearHand(currentPlayer.hand)
-
     roomState.isGameOver = winningCondition(currentPlayer.totalScore)
-
     roomState.currentPlayerIndex = (roomState.currentPlayerIndex + 1) % roomState.players.length
 
-    io.to(roomName).emit('room_state', roomState)
-  })
+    const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
+    const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
 
-  socket.on('player_ready', (roomName: string) => {
-    const roomState = rooms.get(roomName)
-    if (!roomState || roomState.isGameStarted) return
-
-    const player = roomState.players.find(p => p.socketId === socket.id)
-    if (!player) return
-    player.isReady = true
-
-    if (roomState.players.every(p => p.isReady)) {
-      roomState.isGameStarted = true
-      roomState.deck = shuffleDeck(createDeck())
+    if (allDone || someoneFlip7) {
+      roomState.players.forEach(p => {
+        p.isBust = false
+        p.hasStopped = false
+        p.isReady = false
+      })
+      roomState.currentPlayerIndex = 0
     }
 
     io.to(roomName).emit('room_state', roomState)
