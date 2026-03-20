@@ -70,6 +70,7 @@ export default function Game({ room }: GameProps) {
             <div className="game__players">
               {roomState.players.map((p, i) => (
                 <div key={p.socketId} className={`game__player ${i === roomState.currentPlayerIndex ? 'game__player--active' : ''}`}>
+                  <span className="game__player-indicator">{i === roomState.currentPlayerIndex ? '▶' : ''}</span>
                   <span>{p.pseudo} — {p.totalScore} pts</span>
                   {p.isBust && <span> 💥</span>}
                   {p.hasStopped && <span> ✋</span>}
@@ -77,10 +78,20 @@ export default function Game({ room }: GameProps) {
               ))}
             </div>
 
-            <div className="game__hand">
-              {me?.hand.map((card, i) => (
-                <div key={i} className={`game__card game__card--${card.type}`}>
-                  {card.type === 'double' ? 'x2' : card.type === 'bonus' ? `+${card.value}` : card.value}
+            <div className="game__hands">
+              {roomState.players.map((p) => (
+                <div key={p.socketId} className="game__player-hand">
+                  <span className="game__player-hand-label">
+                    {p.pseudo} {p.socketId === socket.id ? '(moi)' : ''}
+                  </span>
+                  <div className="game__hand">
+                    {p.hand.map((card, i) => (
+                      <div key={i} className={`game__card game__card--${card.type}`}>
+                        {card.type === 'double' ? 'x2' : card.type === 'bonus' ? `+${card.value}` : card.value}
+                      </div>
+                    ))}
+                    {p.hand.length === 0 && <span className="game__hand-empty">—</span>}
+                  </div>
                 </div>
               ))}
             </div>
