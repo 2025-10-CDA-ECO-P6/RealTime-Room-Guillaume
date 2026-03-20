@@ -163,3 +163,11 @@ Le déploiement est automatique à chaque push sur `main` grâce à `autoDeploy:
 | give_second_chance | client → serveur | `{ room, targetId }` | Donner sa Seconde Chance |
 | choose_freeze_target | client → serveur | `{ room, targetId }` | Choisir la cible du Freeze |
 | choose_flip_three_target | client → serveur | `{ room, targetId }` | Choisir la cible du Flip Three |
+
+## TODO / Améliorations prévues
+
+- [ ] Gestion des égalités : en cas d'égalité à 200+, le gagnant est celui avec le plus de points en fin de manche
+- [ ] Rotation du premier joueur à chaque manche (actuellement toujours le joueur 0)
+- [ ] Amélioration globale du visuel (layout, animations, responsive)
+- [ ] Ordre de passage aléatoire au démarrage
+- [ ] Mode spectateur pour rejoindre une room en cours
