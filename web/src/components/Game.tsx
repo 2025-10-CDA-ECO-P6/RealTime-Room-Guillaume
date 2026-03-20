@@ -15,6 +15,7 @@ interface Player {
   isBust: boolean
   hasStopped: boolean
   isReady: boolean
+  isFrozen: boolean
 }
 
 interface RoomState {
@@ -27,6 +28,13 @@ interface RoomState {
   lastDrawnCard: Card | null
   isRoundOver: boolean
   pendingSecondChance: boolean
+  pendingFreeze: boolean
+  pendingFlipThree: {
+    targetId: string
+    cardsLeft: number
+    pendingFreeze: boolean
+    pendingFlipThreeCard: boolean
+  } | null
 }
 
 interface GameProps {
@@ -75,7 +83,7 @@ export default function Game({ room }: GameProps) {
                 <div className="game__sc-picker">
                   <span className="game__sc-label">Donne ta Seconde Chance à :</span>
                   {roomState.players
-                    .filter(p => p.socketId !== socket.id && !p.hand.some(c => c.effect === 'second_chance'))
+                    .filter(p => p.socketId !== socket.id && !p.hand.some(c => c.effect === 'second_chance') && !p.isBust && !p.hasStopped && !p.isFrozen)
                     .map(p => (
                       <button
                         key={p.socketId}
@@ -88,12 +96,50 @@ export default function Game({ room }: GameProps) {
                   }
                 </div>
               )}
+
+              {roomState.pendingFreeze && isMyTurn && (
+                <div className="game__freeze-picker">
+                  <span className="game__freeze-label">Gèle un joueur :</span>
+                  {roomState.players
+                    .filter(p => !p.isFrozen && !p.isBust && !p.hasStopped)
+                    .map(p => (
+                      <button
+                        key={p.socketId}
+                        className="game__btn game__btn--freeze"
+                        onClick={() => socket.emit('choose_freeze_target', { room, targetId: p.socketId })}
+                      >
+                        {p.pseudo} {p.socketId === socket.id ? '(moi)' : ''}
+                      </button>
+                    ))
+                  }
+                </div>
+              )}
+
+              {roomState.pendingFlipThree && !roomState.pendingFlipThree.targetId && isMyTurn && (
+                <div className="game__flip-three-picker">
+                  <span className="game__flip-three-label">Flip Three — Choisis une cible :</span>
+                  {roomState.players
+                    .filter(p => !p.isBust && !p.hasStopped && !p.isFrozen)
+                    .map(p => (
+                      <button
+                        key={p.socketId}
+                        className="game__btn game__btn--flip-three"
+                        onClick={() => socket.emit('choose_flip_three_target', { room, targetId: p.socketId })}
+                      >
+                        {p.pseudo} {p.socketId === socket.id ? '(moi)' : ''}
+                      </button>
+                    ))
+                  }
+                </div>
+              )}
+
               {roomState.players.map((p, i) => (
                 <div key={p.socketId} className={`game__player ${i === roomState.currentPlayerIndex ? 'game__player--active' : ''}`}>
                   <span className="game__player-indicator">{i === roomState.currentPlayerIndex ? '▶' : ''}</span>
                   <span>{p.pseudo} — {p.totalScore} pts</span>
                   {p.isBust && <span> 💥</span>}
                   {p.hasStopped && <span> ✋</span>}
+                  {p.isFrozen && <span> ❄️</span>}
                 </div>
               ))}
             </div>
@@ -101,8 +147,11 @@ export default function Game({ room }: GameProps) {
             {roomState.lastDrawnCard && (
               <div className="game__last-card">
                 <span className="game__last-card-label">Dernière carte piochée</span>
-                <div className={`game__card game__card--${roomState.lastDrawnCard.type}`}>
-                  {roomState.lastDrawnCard.type === 'double' ? 'x2'
+                <div className={`game__card game__card--${roomState.lastDrawnCard.type} ${roomState.lastDrawnCard.effect ? `game__card--${roomState.lastDrawnCard.effect}` : ''}`}>
+                  {roomState.lastDrawnCard.effect === 'second_chance' ? '❤️'
+                    : roomState.lastDrawnCard.effect === 'freeze' ? '❄️'
+                    : roomState.lastDrawnCard.effect === 'flip_three' ? '🃏'
+                    : roomState.lastDrawnCard.type === 'double' ? 'x2'
                     : roomState.lastDrawnCard.type === 'bonus' ? `+${roomState.lastDrawnCard.value}`
                     : roomState.lastDrawnCard.value}
                 </div>

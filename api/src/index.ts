@@ -27,6 +27,7 @@ type Player = {
   hasStopped: boolean
   isReady: boolean
   hasPlayedThisRound: boolean
+  isFrozen: boolean
 }
 
 type RoomState = {
@@ -39,6 +40,13 @@ type RoomState = {
   lastDrawnCard: Card | null
   isRoundOver: boolean
   pendingSecondChance: boolean
+  pendingFreeze: boolean
+  pendingFlipThree: {
+    targetId: string
+    cardsLeft: number
+    pendingFreeze: boolean
+    pendingFlipThreeCard: boolean
+  } | null
 }
 
 const rooms = new Map<string, RoomState>()
@@ -66,6 +74,8 @@ io.on('connection', (socket) => {
         lastDrawnCard: null,
         isRoundOver: false,
         pendingSecondChance: false,
+        pendingFreeze: false,
+        pendingFlipThree: null,
       })
     }
 
@@ -85,6 +95,7 @@ io.on('connection', (socket) => {
       hasStopped: false,
       isReady: false,
       hasPlayedThisRound: false,
+      isFrozen: false,
     })
 
     io.to(data.room).emit('room_state', roomState)
@@ -150,7 +161,10 @@ io.on('connection', (socket) => {
         } else {
           const otherWithoutSC = roomState.players.filter(
             p => p.socketId !== currentPlayer.socketId && 
-            !p.hand.some(c => c.effect === 'second_chance')
+            !p.hand.some(c => c.effect === 'second_chance') &&
+            !p.isBust && 
+            !p.hasStopped && 
+            !p.isFrozen
           )
           if (otherWithoutSC.length > 0) {
             roomState.pendingSecondChance = true
@@ -159,9 +173,31 @@ io.on('connection', (socket) => {
             roomState.discardPile = [...roomState.discardPile, card]
           }
         }
+      } else if (card.effect === 'freeze') {
+          roomState.pendingFreeze = true
+          roomState.discardPile = [...roomState.discardPile, card]
+      } else if (card.effect === 'flip_three') {
+        roomState.pendingFlipThree = { targetId: '', cardsLeft: 3, pendingFreeze: false, pendingFlipThreeCard: false }
+        roomState.discardPile = [...roomState.discardPile, card]
       } else {
         roomState.discardPile = [...roomState.discardPile, card]
       }
+        
+        if (roomState.pendingSecondChance || roomState.pendingFreeze || roomState.pendingFlipThree) {
+          io.to(roomName).emit('room_state', roomState)
+          return
+        }
+
+        const allDone = roomState.players.every(p => p.isBust || p.hasStopped || p.isFrozen)
+        if (allDone) {
+          roomState.isRoundOver = true
+        } else {
+          let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+          while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
+            next = (next + 1) % roomState.players.length
+          }
+          roomState.currentPlayerIndex = next
+        }
 
       io.to(roomName).emit('room_state', roomState)
       return
@@ -176,7 +212,7 @@ io.on('connection', (socket) => {
         roomState.discardPile = [...roomState.discardPile, scCard, card]
         currentPlayer.hasPlayedThisRound = true
         let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
-        while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+        while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
           next = (next + 1) % roomState.players.length
         }
         roomState.currentPlayerIndex = next
@@ -187,12 +223,12 @@ io.on('connection', (socket) => {
       currentPlayer.isBust = true
       currentPlayer.hasPlayedThisRound = true
 
-      const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
+      const allDone = roomState.players.every(p => p.isBust || p.hasStopped || p.isFrozen)
       if (allDone) {
         roomState.isRoundOver = true
       } else {
         let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
-        while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+        while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
           next = (next + 1) % roomState.players.length
         }
         roomState.currentPlayerIndex = next
@@ -205,7 +241,7 @@ io.on('connection', (socket) => {
     currentPlayer.hand = addCard(card, currentPlayer.hand)
     currentPlayer.hasPlayedThisRound = true
 
-    const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
+    const allDone = roomState.players.every(p => p.isBust || p.hasStopped || p.isFrozen)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
 
     if (someoneFlip7 || allDone) {
@@ -221,7 +257,7 @@ io.on('connection', (socket) => {
       roomState.isRoundOver = true
     } else {
       let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
-      while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+      while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
         next = (next + 1) % roomState.players.length
       }
       roomState.currentPlayerIndex = next
@@ -244,7 +280,7 @@ io.on('connection', (socket) => {
     currentPlayer.hand = clearHand(currentPlayer.hand)
     roomState.isGameOver = winningCondition(currentPlayer.totalScore)
 
-    const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
+    const allDone = roomState.players.every(p => p.isBust || p.hasStopped || p.isFrozen)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
 
   if (someoneFlip7 || allDone) {
@@ -260,7 +296,7 @@ io.on('connection', (socket) => {
     roomState.isRoundOver = true
   } else {
     let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
-    while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+    while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
       next = (next + 1) % roomState.players.length
     }
     roomState.currentPlayerIndex = next
@@ -277,7 +313,7 @@ io.on('connection', (socket) => {
     if (currentPlayer.socketId !== socket.id) return
 
     const target = roomState.players.find(p => p.socketId === data.targetId)
-    if (!target || target.hand.some(c => c.effect === 'second_chance')) return
+    if (!target || target.hand.some(c => c.effect === 'second_chance') || target.isBust || target.hasStopped || target.isFrozen) return
 
     const scIndex = currentPlayer.hand.findIndex(c => c.effect === 'second_chance')
     const scCard = currentPlayer.hand[scIndex]
@@ -285,23 +321,184 @@ io.on('connection', (socket) => {
     target.hand = addCard(scCard, target.hand)
     roomState.pendingSecondChance = false
 
+    const allDone = roomState.players.every(p => p.isBust || p.hasStopped || p.isFrozen)
+
+    if (allDone) {
+      roomState.isRoundOver = true
+    } else {
+      let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+      while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
+        next = (next + 1) % roomState.players.length
+      }
+      roomState.currentPlayerIndex = next
+    }
+    
     io.to(data.room).emit('room_state', roomState)
   })
+
+  socket.on('choose_freeze_target', (data: { room: string, targetId: string }) => {
+    const roomState = rooms.get(data.room)
+    if (!roomState || !roomState.pendingFreeze) return
+
+    const currentPlayer = roomState.players[roomState.currentPlayerIndex]
+    if (currentPlayer.socketId !== socket.id) return
+
+    const target = roomState.players.find(p => p.socketId === data.targetId)
+    if (!target || target.isFrozen || target.isBust || target.hasStopped) return
+
+    target.isFrozen = true
+    roomState.pendingFreeze = false
+
+    if (roomState.pendingFlipThree?.pendingFlipThreeCard) {
+      roomState.pendingFlipThree = { targetId: '', cardsLeft: 3, pendingFreeze: false, pendingFlipThreeCard: false }
+      io.to(data.room).emit('room_state', roomState)
+      return
+    }
+
+    const allDone = roomState.players.every(p => p.isBust || p.hasStopped || p.isFrozen)
+    if (allDone) {
+      roomState.isRoundOver = true
+    } else {
+      let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+      while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
+        next = (next + 1) % roomState.players.length
+      }
+      roomState.currentPlayerIndex = next
+    }
+
+    io.to(data.room).emit('room_state', roomState)
+  })
+
+  socket.on('choose_flip_three_target', (data: { room: string, targetId: string }) => {
+    const roomState = rooms.get(data.room)
+    if (!roomState || !roomState.pendingFlipThree || roomState.pendingFlipThree.targetId) return
+
+    const currentPlayer = roomState.players[roomState.currentPlayerIndex]
+    if (currentPlayer.socketId !== socket.id) return
+
+    const target = roomState.players.find(p => p.socketId === data.targetId)
+    if (!target || target.isBust || target.hasStopped || target.isFrozen) return
+
+    roomState.pendingFlipThree.targetId = data.targetId
+
+    for (let i = 0; i < roomState.pendingFlipThree.cardsLeft; i++) {
+      if (roomState.deck.length === 0) {
+        roomState.deck = shuffleDeck(roomState.discardPile)
+        roomState.discardPile = []
+      }
+
+      const result = drawCard(roomState.deck)
+      if (!result) break
+
+      const { card: drawnCard, remainingDeck } = result
+      roomState.deck = remainingDeck
+      roomState.lastDrawnCard = drawnCard
+
+      if (drawnCard.type === 'action') {
+        if (drawnCard.effect === 'second_chance') {
+          target.hand = addCard(drawnCard, target.hand)
+        } else if (drawnCard.effect === 'freeze') {
+          roomState.pendingFlipThree!.pendingFreeze = true
+          roomState.discardPile = [...roomState.discardPile, drawnCard]
+        } else if (drawnCard.effect === 'flip_three') {
+          roomState.pendingFlipThree!.pendingFlipThreeCard = true
+          roomState.discardPile = [...roomState.discardPile, drawnCard]
+        } else {
+          roomState.discardPile = [...roomState.discardPile, drawnCard]
+        }
+        continue
+      }
+
+      if (isBust(drawnCard, target.hand)) {
+        const scIndex = target.hand.findIndex(c => c.effect === 'second_chance')
+        if (scIndex !== -1) {
+          const scCard = target.hand[scIndex]
+          target.hand = target.hand.filter((_, idx) => idx !== scIndex)
+          roomState.discardPile = [...roomState.discardPile, scCard, drawnCard]
+        } else {
+          target.isBust = true
+          roomState.discardPile = [...roomState.discardPile, drawnCard]
+          break
+        }
+      } else {
+        target.hand = addCard(drawnCard, target.hand)
+
+        if (flip7(target.hand)) {
+          roomState.players.forEach(p => {
+            if (!p.isBust && !p.hasStopped) {
+              const roundScore = calculateTurnScore(p.hand)
+              p.totalScore = addToTotalScore(p.totalScore, roundScore)
+            }
+            roomState.discardPile = [...roomState.discardPile, ...p.hand]
+            p.hand = clearHand(p.hand)
+            p.isBust = false
+            p.hasStopped = false
+            p.isReady = false
+            p.hasPlayedThisRound = false
+            p.isFrozen = false
+          })
+          roomState.isGameOver = roomState.players.some(p => winningCondition(p.totalScore))
+          roomState.pendingFlipThree = null
+          roomState.isRoundOver = true
+          io.to(data.room).emit('room_state', roomState)
+          return
+        }
+      }
+    }
+
+    if (roomState.pendingFlipThree!.pendingFreeze) {
+      roomState.pendingFreeze = true
+      roomState.pendingFlipThree!.pendingFreeze = false
+      if (!roomState.pendingFlipThree!.pendingFlipThreeCard) {
+        roomState.pendingFlipThree = null
+      }
+      io.to(data.room).emit('room_state', roomState)
+      return
+    }
+
+    if (roomState.pendingFlipThree!.pendingFlipThreeCard) {
+      roomState.pendingFlipThree = { targetId: '', cardsLeft: 3, pendingFreeze: false, pendingFlipThreeCard: false }
+      io.to(data.room).emit('room_state', roomState)
+      return
+    }
+
+    roomState.pendingFlipThree = null
+
+    const allDone = roomState.players.every(p => p.isBust || p.hasStopped || p.isFrozen)
+    if (allDone) {
+      roomState.isRoundOver = true
+    } else {
+      let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+      while (roomState.players[next].isBust || roomState.players[next].hasStopped || roomState.players[next].isFrozen) {
+        next = (next + 1) % roomState.players.length
+      }
+      roomState.currentPlayerIndex = next
+    }
+
+  io.to(data.room).emit('room_state', roomState)
+})
 
   socket.on('next_round', (roomName: string) => {
     const roomState = rooms.get(roomName)
     if (!roomState || !roomState.isRoundOver) return
 
     roomState.players.forEach(p => {
+      if (p.isFrozen) {
+        const roundScore = calculateTurnScore(p.hand)
+        p.totalScore = addToTotalScore(p.totalScore, roundScore)
+      }
       roomState.discardPile = [...roomState.discardPile, ...p.hand]
       p.hand = clearHand(p.hand)
       p.isBust = false
       p.hasStopped = false
       p.isReady = false
       p.hasPlayedThisRound = false
+      p.isFrozen = false
     })
+    roomState.isGameOver = roomState.players.some(p => winningCondition(p.totalScore))
     roomState.isRoundOver = false
     roomState.currentPlayerIndex = 0
+    roomState.pendingFlipThree = null
 
     io.to(roomName).emit('room_state', roomState)
   })
@@ -315,11 +512,13 @@ io.on('connection', (socket) => {
     roomState.deck = []
     roomState.discardPile = []
     roomState.currentPlayerIndex = 0
+    roomState.pendingFlipThree = null
     roomState.players.forEach(p => {
       p.hand = []
       p.isBust = false
       p.hasStopped = false
       p.isReady = false
+      p.isFrozen = false
     })
 
     io.to(roomName).emit('room_state', roomState)
