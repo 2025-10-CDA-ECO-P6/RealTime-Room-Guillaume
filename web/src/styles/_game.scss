@@ -118,6 +118,11 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-xs;
+
+    &--bust {
+      opacity: 0.35;
+      filter: grayscale(100%);
+    }
   }
 
   &__player-hand-label {
@@ -179,5 +184,17 @@
     font-size: $font-size-lg;
     font-weight: 600;
     padding: $spacing-md;
+  }
+
+  &__last-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+
+    &-label {
+      font-size: $font-size-sm;
+      color: rgba($color-text-light, 0.5);
+    }
   }
 }

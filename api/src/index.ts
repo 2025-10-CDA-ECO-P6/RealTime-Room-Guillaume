@@ -36,6 +36,8 @@ type RoomState = {
   currentPlayerIndex: number
   isGameStarted: boolean
   isGameOver: boolean
+  lastDrawnCard: Card | null
+  isRoundOver: boolean
 }
 
 const rooms = new Map<string, RoomState>()
@@ -59,7 +61,9 @@ io.on('connection', (socket) => {
         players: [],
         currentPlayerIndex: 0,
         isGameStarted: false,
-        isGameOver: false
+        isGameOver: false,
+        lastDrawnCard: null,
+        isRoundOver: false,
       })
     }
 
@@ -133,6 +137,7 @@ io.on('connection', (socket) => {
 
     const { card, remainingDeck } = result
     roomState.deck = remainingDeck
+    roomState.lastDrawnCard = card 
 
     if (card.type === 'action') {
       roomState.discardPile = [...roomState.discardPile, card]
@@ -141,26 +146,41 @@ io.on('connection', (socket) => {
     }
 
     if (isBust(card, currentPlayer.hand)) {
-      roomState.discardPile = [...roomState.discardPile, ...currentPlayer.hand]
-      currentPlayer.hand = clearHand(currentPlayer.hand)
       currentPlayer.isBust = true
-    } else {
-      currentPlayer.hand = addCard(card, currentPlayer.hand)
-    }
+      currentPlayer.hasPlayedThisRound = true
 
+      const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
+      if (allDone) {
+        roomState.isRoundOver = true
+      } else {
+        let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+        while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+          next = (next + 1) % roomState.players.length
+        }
+        roomState.currentPlayerIndex = next
+      }
+
+      io.to(roomName).emit('room_state', roomState)
+      return
+    }
+    
+    currentPlayer.hand = addCard(card, currentPlayer.hand)
     currentPlayer.hasPlayedThisRound = true
 
     const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
 
-    if (allDone || someoneFlip7) {
-      roomState.players.forEach(p => {
-        p.isBust = false
-        p.hasStopped = false
-        p.isReady = false
-        p.hasPlayedThisRound = false
-      })
-      roomState.currentPlayerIndex = 0
+    if (someoneFlip7 || allDone) {
+      if (someoneFlip7) {
+        roomState.players.forEach(p => {
+          if (!p.isBust && !p.hasStopped) {
+            const roundScore = calculateTurnScore(p.hand)
+            p.totalScore = addToTotalScore(p.totalScore, roundScore)
+          }
+        })
+        roomState.isGameOver = roomState.players.some(p => winningCondition(p.totalScore))
+      }
+      roomState.isRoundOver = true
     } else {
       let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
       while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
@@ -189,21 +209,42 @@ io.on('connection', (socket) => {
     const allDone = roomState.players.every(p => p.isBust || p.hasStopped)
     const someoneFlip7 = roomState.players.some(p => flip7(p.hand))
 
-    if (allDone || someoneFlip7) {
+  if (someoneFlip7 || allDone) {
+    if (someoneFlip7) {
       roomState.players.forEach(p => {
-        p.isBust = false
-        p.hasStopped = false
-        p.isReady = false
-        p.hasPlayedThisRound = false
+        if (!p.isBust && !p.hasStopped) {
+          const roundScore = calculateTurnScore(p.hand)
+          p.totalScore = addToTotalScore(p.totalScore, roundScore)
+        }
       })
-      roomState.currentPlayerIndex = 0
-    } else {
-      let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
-      while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
-        next = (next + 1) % roomState.players.length
-      }
-      roomState.currentPlayerIndex = next
+      roomState.isGameOver = roomState.players.some(p => winningCondition(p.totalScore))
     }
+    roomState.isRoundOver = true
+  } else {
+    let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+    while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+      next = (next + 1) % roomState.players.length
+    }
+    roomState.currentPlayerIndex = next
+  }
+
+    io.to(roomName).emit('room_state', roomState)
+  })
+
+  socket.on('next_round', (roomName: string) => {
+    const roomState = rooms.get(roomName)
+    if (!roomState || !roomState.isRoundOver) return
+
+    roomState.players.forEach(p => {
+      roomState.discardPile = [...roomState.discardPile, ...p.hand]
+      p.hand = clearHand(p.hand)
+      p.isBust = false
+      p.hasStopped = false
+      p.isReady = false
+      p.hasPlayedThisRound = false
+    })
+    roomState.isRoundOver = false
+    roomState.currentPlayerIndex = 0
 
     io.to(roomName).emit('room_state', roomState)
   })

@@ -24,6 +24,8 @@ interface RoomState {
   currentPlayerIndex: number
   isGameStarted: boolean
   isGameOver: boolean
+  lastDrawnCard: Card | null
+  isRoundOver: boolean
 }
 
 interface GameProps {
@@ -78,9 +80,24 @@ export default function Game({ room }: GameProps) {
               ))}
             </div>
 
+            <div style={{color: 'white', padding: '4px', fontSize: '12px'}}>
+              isRoundOver: {String(roomState.isRoundOver)}
+            </div>
+
+            {roomState.lastDrawnCard && (
+              <div className="game__last-card">
+                <span className="game__last-card-label">Dernière carte piochée</span>
+                <div className={`game__card game__card--${roomState.lastDrawnCard.type}`}>
+                  {roomState.lastDrawnCard.type === 'double' ? 'x2'
+                    : roomState.lastDrawnCard.type === 'bonus' ? `+${roomState.lastDrawnCard.value}`
+                    : roomState.lastDrawnCard.value}
+                </div>
+              </div>
+            )}
+
             <div className="game__hands">
               {roomState.players.map((p) => (
-                <div key={p.socketId} className="game__player-hand">
+                <div key={p.socketId} className={`game__player-hand ${p.isBust ? 'game__player-hand--bust' : ''}`}>
                   <span className="game__player-hand-label">
                     {p.pseudo} {p.socketId === socket.id ? '(moi)' : ''}
                   </span>
@@ -106,13 +123,18 @@ export default function Game({ room }: GameProps) {
       {roomState?.isGameStarted && !roomState.isGameOver && (
         <div className="game__controls">
           <button className="game__btn" onClick={handleDraw}
-            disabled={!isMyTurn || me?.isBust || me?.hasStopped}>
+            disabled={!isMyTurn || me?.isBust || me?.hasStopped || roomState.isRoundOver}>
             Piocher
           </button>
           <button className="game__btn game__btn--stop" onClick={handleStop}
-            disabled={!isMyTurn || me?.isBust || me?.hasStopped}>
+            disabled={!isMyTurn || me?.isBust || me?.hasStopped || roomState.isRoundOver}>
             Stop
           </button>
+          {roomState.isRoundOver && (
+            <button className="game__btn" onClick={() => socket.emit('next_round', room)}>
+              Tour suivant ➜
+            </button>
+          )}
         </div>
       )}
 

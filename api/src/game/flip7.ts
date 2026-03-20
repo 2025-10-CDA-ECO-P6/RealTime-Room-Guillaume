@@ -65,15 +65,14 @@ export function createDeck(): Card[] {
             deck.push({ value: i, type: 'number' });
         }
     }
-    deck.push({ value: 0, type: 'number' }); // Add the 0 card
+    deck.push({ value: 0, type: 'number' }); 
 
     deck.push({ value: 2, type: 'bonus' });
     deck.push({ value: 4, type: 'bonus' });
     deck.push({ value: 6, type: 'bonus' });
     deck.push({ value: 8, type: 'bonus' });
-    deck.push({ value: 10, type: 'bonus' });// Bonus cards have a value that will be added to the score
-
-    deck.push({ value: 0, type: 'double' }); // Double card doesn't have a value, it just doubles the score
+    deck.push({ value: 10, type: 'bonus' });
+    deck.push({ value: 0, type: 'double' }); 
 
     for (let k = 1; k <= 3; k++) {
         deck.push({ value: 0, type: 'action', effect: 'freeze' });
