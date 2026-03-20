@@ -24,39 +24,21 @@
   &__board {
     flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
     min-height: 13.75rem;
     border: 1px solid $color-border;
     border-radius: $border-radius;
     background-color: $color-felt;
     color: rgba($color-text-light, 0.4);
     font-size: $font-size-sm;
+    overflow: hidden;
   }
 
   &__controls {
     display: flex;
     gap: $spacing-sm;
-  }
-
-  &__input {
-    flex: 1;
-    padding: $spacing-sm $spacing-md;
-    border: 1px solid $color-border;
-    border-radius: $border-radius;
-    font-size: $font-size-base;
-    background-color: rgba($color-text-light, 0.9);
-    color: $color-text-dark;
-    outline: none;
-    font-family: inherit;
-
-    &::placeholder {
-      color: lighten($color-text-dark, 40%);
-    }
-
-    &:focus {
-      border-color: $color-accent;
-    }
   }
 
   &__btn {
@@ -74,5 +56,128 @@
     &:hover {
       background-color: lighten($color-accent, 10%);
     }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--stop {
+      background-color: $color-card-double;
+      color: $color-text-light;
+
+      &:hover {
+        background-color: lighten($color-card-double, 10%);
+      }
+    }
+  }
+
+  &__players {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    width: 100%;
+    padding: $spacing-sm;
+  }
+
+  &__player {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius;
+    border: 1px solid transparent;
+    color: rgba($color-text-light, 0.7);
+    font-size: $font-size-sm;
+    transition: all 0.2s ease;
+
+    &--active {
+      background-color: rgba($color-accent, 0.12);
+      border-color: $color-accent;
+      color: $color-text-light;
+      font-weight: 600;
+      box-shadow: 0 0 8px rgba($color-accent, 0.3);
+    }
+  }
+
+  &__player-indicator {
+    width: 1rem;
+    color: $color-accent;
+    font-size: $font-size-sm;
+  }
+
+  &__hands {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    width: 100%;
+    padding: $spacing-sm;
+  }
+
+  &__player-hand {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  &__player-hand-label {
+    font-size: $font-size-sm;
+    color: rgba($color-text-light, 0.6);
+    font-weight: 600;
+  }
+
+  &__hand {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: $spacing-xs;
+  }
+
+  &__hand-empty {
+    font-size: $font-size-sm;
+    color: rgba($color-text-light, 0.3);
+  }
+
+  &__card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $card-width;
+    height: $card-height;
+    border-radius: $card-border-radius;
+    font-weight: 700;
+    font-size: $card-font-size;
+    border: 2px solid transparent;
+
+    &--number {
+      background-color: rgba($color-text-light, 0.9);
+      color: $color-text-dark;
+      border-color: rgba($color-text-light, 0.5);
+    }
+
+    &--bonus {
+      background-color: rgba($color-accent, 0.2);
+      color: $color-accent;
+      border-color: $color-accent;
+    }
+
+    &--double {
+      background-color: rgba($color-card-double, 0.2);
+      color: $color-card-double;
+      border-color: $color-card-double;
+    }
+
+    &--action {
+      background-color: rgba($color-card-action, 0.2);
+      color: $color-card-action-text;
+      border-color: $color-card-action;
+    }
+  }
+
+  &__win {
+    color: $color-accent;
+    font-size: $font-size-lg;
+    font-weight: 600;
+    padding: $spacing-md;
   }
 }

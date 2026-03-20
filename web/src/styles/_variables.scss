@@ -8,6 +8,9 @@ $color-accent:      #c9a84c;
 $color-border:      #2e3f3f;   
 $color-text-dark:   #1a1a1a;   
 $color-text-light:  #f0ede4;  
+$color-card-double: #e74c3c;
+$color-card-action: #9b59b6;
+$color-card-action-text: #c39bd3;
 
 // ─── Typographie ────────────────────────────────────────────
 $font-primary:   'Inter', sans-serif;
@@ -25,3 +28,9 @@ $spacing-xl: 2rem;
 // ─── Bordures ───────────────────────────────────────────────
 $border-radius:    0.75rem; 
 $border-radius-lg: 1.25rem; 
+
+// ─── Cartes ─────────────────────────────────────────────────
+$card-width:        2rem;
+$card-height:       2.8rem;
+$card-font-size:    0.75rem;
+$card-border-radius: 4px;
