@@ -45,8 +45,8 @@ io.on('connection', (socket) => {
 
   socket.on('join_room', (data: { room: string, pseudo: string }) => { 
        
-    if (!/^[a-zA-Z0-9]{3,20}$/.test(data.room)) {
-      socket.emit('room_error', 'Le nom de room doit contenir entre 3 et 20 caractères alphanumériques')
+    if (!/^\d{1,4}$/.test(data.room)) {
+      socket.emit('room_error', 'Le nom de room doit contenir entre 1 et 4 chiffres')
       return
     }
     
