@@ -38,6 +38,7 @@ type RoomState = {
   isGameOver: boolean
   lastDrawnCard: Card | null
   isRoundOver: boolean
+  pendingSecondChance: boolean
 }
 
 const rooms = new Map<string, RoomState>()
@@ -64,6 +65,7 @@ io.on('connection', (socket) => {
         isGameOver: false,
         lastDrawnCard: null,
         isRoundOver: false,
+        pendingSecondChance: false,
       })
     }
 
@@ -140,12 +142,48 @@ io.on('connection', (socket) => {
     roomState.lastDrawnCard = card 
 
     if (card.type === 'action') {
-      roomState.discardPile = [...roomState.discardPile, card]
+      if (card.effect === 'second_chance') {
+        const hasOne = currentPlayer.hand.some(c => c.effect === 'second_chance')
+        
+        if (!hasOne) {
+          currentPlayer.hand = addCard(card, currentPlayer.hand)
+        } else {
+          const otherWithoutSC = roomState.players.filter(
+            p => p.socketId !== currentPlayer.socketId && 
+            !p.hand.some(c => c.effect === 'second_chance')
+          )
+          if (otherWithoutSC.length > 0) {
+            roomState.pendingSecondChance = true
+            currentPlayer.hand = addCard(card, currentPlayer.hand)
+          } else {
+            roomState.discardPile = [...roomState.discardPile, card]
+          }
+        }
+      } else {
+        roomState.discardPile = [...roomState.discardPile, card]
+      }
+
       io.to(roomName).emit('room_state', roomState)
       return
     }
 
     if (isBust(card, currentPlayer.hand)) {
+
+      const scIndex = currentPlayer.hand.findIndex(c => c.effect === 'second_chance')
+      if (scIndex !== -1) {
+        const scCard = currentPlayer.hand[scIndex]
+        currentPlayer.hand = currentPlayer.hand.filter((_, i) => i !== scIndex)
+        roomState.discardPile = [...roomState.discardPile, scCard, card]
+        currentPlayer.hasPlayedThisRound = true
+        let next = (roomState.currentPlayerIndex + 1) % roomState.players.length
+        while (roomState.players[next].isBust || roomState.players[next].hasStopped) {
+          next = (next + 1) % roomState.players.length
+        }
+        roomState.currentPlayerIndex = next
+        io.to(roomName).emit('room_state', roomState)
+        return
+      }
+      
       currentPlayer.isBust = true
       currentPlayer.hasPlayedThisRound = true
 
@@ -229,6 +267,25 @@ io.on('connection', (socket) => {
   }
 
     io.to(roomName).emit('room_state', roomState)
+  })
+
+  socket.on('give_second_chance', (data: { room: string, targetId: string }) => {
+    const roomState = rooms.get(data.room)
+    if (!roomState || !roomState.pendingSecondChance) return
+
+    const currentPlayer = roomState.players[roomState.currentPlayerIndex]
+    if (currentPlayer.socketId !== socket.id) return
+
+    const target = roomState.players.find(p => p.socketId === data.targetId)
+    if (!target || target.hand.some(c => c.effect === 'second_chance')) return
+
+    const scIndex = currentPlayer.hand.findIndex(c => c.effect === 'second_chance')
+    const scCard = currentPlayer.hand[scIndex]
+    currentPlayer.hand = currentPlayer.hand.filter((_, i) => i !== scIndex)
+    target.hand = addCard(scCard, target.hand)
+    roomState.pendingSecondChance = false
+
+    io.to(data.room).emit('room_state', roomState)
   })
 
   socket.on('next_round', (roomName: string) => {

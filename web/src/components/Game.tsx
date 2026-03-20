@@ -26,6 +26,7 @@ interface RoomState {
   isGameOver: boolean
   lastDrawnCard: Card | null
   isRoundOver: boolean
+  pendingSecondChance: boolean
 }
 
 interface GameProps {
@@ -70,6 +71,23 @@ export default function Game({ room }: GameProps) {
         {roomState?.isGameStarted && (
           <>
             <div className="game__players">
+              {roomState.pendingSecondChance && isMyTurn && (
+                <div className="game__sc-picker">
+                  <span className="game__sc-label">Donne ta Seconde Chance à :</span>
+                  {roomState.players
+                    .filter(p => p.socketId !== socket.id && !p.hand.some(c => c.effect === 'second_chance'))
+                    .map(p => (
+                      <button
+                        key={p.socketId}
+                        className="game__btn game__btn--sc"
+                        onClick={() => socket.emit('give_second_chance', { room, targetId: p.socketId })}
+                      >
+                        {p.pseudo}
+                      </button>
+                    ))
+                  }
+                </div>
+              )}
               {roomState.players.map((p, i) => (
                 <div key={p.socketId} className={`game__player ${i === roomState.currentPlayerIndex ? 'game__player--active' : ''}`}>
                   <span className="game__player-indicator">{i === roomState.currentPlayerIndex ? '▶' : ''}</span>
@@ -79,11 +97,7 @@ export default function Game({ room }: GameProps) {
                 </div>
               ))}
             </div>
-
-            <div style={{color: 'white', padding: '4px', fontSize: '12px'}}>
-              isRoundOver: {String(roomState.isRoundOver)}
-            </div>
-
+            
             {roomState.lastDrawnCard && (
               <div className="game__last-card">
                 <span className="game__last-card-label">Dernière carte piochée</span>
@@ -103,8 +117,11 @@ export default function Game({ room }: GameProps) {
                   </span>
                   <div className="game__hand">
                     {p.hand.map((card, i) => (
-                      <div key={i} className={`game__card game__card--${card.type}`}>
-                        {card.type === 'double' ? 'x2' : card.type === 'bonus' ? `+${card.value}` : card.value}
+                      <div key={i} className={`game__card game__card--${card.type} ${card.effect ? `game__card--${card.effect}` : ''}`}>
+                        {card.effect === 'second_chance' ? '❤️'
+                          : card.type === 'double' ? 'x2' 
+                          : card.type === 'bonus' ? `+${card.value}` 
+                          : card.value}
                       </div>
                     ))}
                     {p.hand.length === 0 && <span className="game__hand-empty">—</span>}
