@@ -51,6 +51,11 @@ Flip 7 est un jeu de push-your-luck multijoueur intégré à l'application.
 - 6 cartes bonus (x2, +2, +4, +6, +8, +10)
 - 9 cartes action (Freeze, Flip Three, Seconde Chance — 3 exemplaires chacune)
 
+### Cartes action
+- **Seconde Chance** ❤️ : conservée en main, annule un bust. Si vous en avez déjà une, donnez-la à un autre joueur actif. Si tout le monde en a une, elle est défaussée.
+- **Freeze** ❄️ : gelez un joueur de votre choix (vous inclus). Il ne joue pas ce tour mais encaisse ses points en fin de manche.
+- **Flip Three** 🃏 : désignez un joueur (vous inclus), il pioche 3 cartes d'affilée. Les règles de bust et de SC s'appliquent. Si un Flip 7 survient pendant le Flip Three, il a la priorité.
+
 ---
 
 ## Prérequis
@@ -120,6 +125,11 @@ La logique métier du jeu a été développée en TDD :
 - Gestion du bust, de la défausse et du deck vide
 - Impossible de rejoindre une partie en cours
 - Pas de persistance (assumé et documenté)
+- Cartes action implémentées (Freeze, Flip Three, Seconde Chance)
+- Bouton "Tour suivant" en fin de manche pour voir les mains avant reset
+- Indicateur visuel du joueur actif (flèche + highlight)
+- Mains de tous les joueurs visibles
+- Code de room : 1 à 4 chiffres uniquement
 
 ## Déploiement
 
@@ -149,3 +159,7 @@ Le déploiement est automatique à chaque push sur `main` grâce à `autoDeploy:
 | room_state | serveur → client | `RoomState` | État complet de la room |
 | game_in_progress | serveur → client | - | Partie en cours, accès refusé |
 | room_error | serveur → client | `message: string` | Erreur de validation de la room |
+| next_round | client → serveur | `roomName: string` | Passer à la manche suivante |
+| give_second_chance | client → serveur | `{ room, targetId }` | Donner sa Seconde Chance |
+| choose_freeze_target | client → serveur | `{ room, targetId }` | Choisir la cible du Freeze |
+| choose_flip_three_target | client → serveur | `{ room, targetId }` | Choisir la cible du Flip Three |

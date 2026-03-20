@@ -99,6 +99,34 @@
 **Test** : `sortHand([numéro, bonus, double])` → `{ numberCards, bonusCards, hasDouble }`  
 **Implémentation** : `filter` par type
 
+### Itération 16 — Système multijoueur par room
+**Règle** : Les joueurs rejoignent une room, se déclarent prêts, et jouent à tour de rôle.  
+**Implémentation** : `RoomState` avec `Map<string, RoomState>`, events `join_room`, `player_ready`, `draw_card`, `stop`
+
+### Itération 17 — Indicateur visuel du joueur actif
+**Règle** : Le joueur actif est mis en évidence visuellement.  
+**Implémentation** : Classe BEM `game__player--active` + flèche `▶`, highlight doré via SCSS
+
+### Itération 18 — Affichage des mains et dernière carte piochée
+**Règle** : Tous les joueurs voient toutes les mains et la dernière carte piochée.  
+**Implémentation** : `lastDrawnCard` dans `RoomState`, rendu de toutes les mains dans `Game.tsx`
+
+### Itération 19 — Fin de manche avec bouton "Tour suivant"
+**Règle** : Quand tous les joueurs sont bust/stopped ou qu'un Flip 7 est réalisé, la manche se termine et les joueurs peuvent voir les mains avant le reset.  
+**Implémentation** : `isRoundOver` dans `RoomState`, event `next_round`, scores calculés au reset
+
+### Itération 20 — Carte Seconde Chance
+**Règle** : Conservée en main, annule un bust. Si doublon, donnée à un joueur actif sans SC. Si impossible, défaussée.  
+**Implémentation** : `pendingSecondChance` dans `RoomState`, events `give_second_chance`, consommation au bust
+
+### Itération 21 — Carte Freeze
+**Règle** : Gèle un joueur (soi inclus). Le joueur gelé saute son tour mais encaisse ses points.  
+**Implémentation** : `isFrozen` dans `Player`, `pendingFreeze` dans `RoomState`, event `choose_freeze_target`, score calculé dans `next_round`
+
+### Itération 22 — Carte Flip Three
+**Règle** : Désigne une cible qui pioche 3 cartes. SC s'applique immédiatement, Freeze/Flip Three résolus après les 3 cartes. Flip 7 pendant Flip Three a la priorité.  
+**Implémentation** : `pendingFlipThree` dans `RoomState`, event `choose_flip_three_target`, boucle de pioche avec gestion des effets imbriqués
+
 ---
 
 ## Refactorisation majeure — Type Card
