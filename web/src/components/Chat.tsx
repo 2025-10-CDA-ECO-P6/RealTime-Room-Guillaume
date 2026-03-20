@@ -28,11 +28,6 @@ export default function Chat({ onJoin }: ChatProps) {
       setJoined(false)
     })
 
-    socket.once('room_state', () => {
-      setJoined(true)
-      onJoin(roomRef.current)
-    })
-
     return () => {
       socket.off('receive_message')
       socket.off('game_in_progress') 
@@ -43,11 +38,23 @@ export default function Chat({ onJoin }: ChatProps) {
 
   const roomRef = useRef('')
 
-
   const joinRoom = () => {
-    if (room && pseudo) {
-      socket.emit('join_room', { room, pseudo })
+    if (!room || !pseudo) return
+
+    if (!/^\d{1,4}$/.test(room)) {
+      alert('Le code de room doit contenir entre 1 et 4 chiffres')
+      return
     }
+
+    socket.once('room_state', () => {
+      setJoined(true)
+      onJoin(roomRef.current)
+    })
+    socket.once('room_error', (msg: string) => {
+      alert(msg)
+      socket.off('room_state')
+    })
+    socket.emit('join_room', { room, pseudo })
   }
 
   const sendMessage = () => {
